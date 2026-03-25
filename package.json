@@ -1,0 +1,22 @@
+{
+  "name": "@quill/http",
+  "version": "0.1.0",
+  "description": "Type-safe HTTP client with interceptors",
+  "license": "MIT",
+  "repository": "https://github.com/KooshaPari/quill",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^1.0.0"
+  }
+}
