@@ -1,29 +1,49 @@
-# CLAUDE.md - Development Guidelines for quill
+# quill
 
-## Project Overview
+Type-safe HTTP client for TypeScript with interceptors, retries, and built-in test utilities.
 
-Quill logging utilities
+## Stack
 
-## Key Files
+- Language: TypeScript (strict mode)
+- Package name: `@kooshapari/quillts`
+- Build: `tsc` (TypeScript compiler)
+- Testing: vitest
+- Linting: eslint
+- Type checking: `tsc --noEmit`
 
--  - Project overview
-- See project-specific directories
+## Structure
 
-## Development Commands
-
-```bash
-pip install -e ".[dev]" && pytest
+```
+src/    - TypeScript source
+dist/   - Compiled JavaScript output (published to npm)
+tests/  - Test suite
 ```
 
-## Architecture Principles
+## Development
 
-- **SOLID** - Single Responsibility, Dependency Inversion
-- **DRY** - Shared abstractions
-- **PoLA** - Descriptive error types
+```bash
+npm install
+npm run build
+npm run test
+npm run lint
+npm run typecheck
+```
+
+## TypeScript Conventions
+
+- Strict mode required; no `any` types.
+- Export public API from `src/index.ts`.
+- All public functions must have JSDoc comments with param/return types.
+- Interceptors must implement the `Interceptor` interface.
+- Retry configuration uses exponential backoff; expose via `RetryConfig`.
 
 ## Phenotype Org Rules
 
-- UTF-8 encoding only in all text files
-- Worktree discipline: canonical repo stays on `main`
-- CI completeness: fix all CI failures before merging
-- Never commit agent directories (`.claude/`, `.codex/`, `.cursor/`)
+- UTF-8 encoding only in all text files. No Windows-1252 smart quotes or special characters.
+- Worktree discipline: canonical repo stays on `main`; feature work in worktrees.
+- CI completeness: fix all CI failures on PRs, including pre-existing ones.
+- Never commit agent directories (`.claude/`, `.codex/`, `.gemini/`, `.cursor/`).
+
+## Spec Tracking
+
+Spec work is tracked via AgilePlus: `cd /Users/kooshapari/CodeProjects/Phenotype/repos/AgilePlus && agileplus <command>`
