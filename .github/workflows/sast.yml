@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: github/codeql-action/init-action@v3
+      - uses: github/codeql-action/init-action@v4
         with:
           languages: [typescript, python, rust, go]
       - uses: github/codeql-action/autobuild
