@@ -1,3 +1,6 @@
+> **Work state:** SCAFFOLD · **Progress:** `███░░░░░░░ 30%`
+> Type-safe TypeScript HTTP client (npm `@kooshapari/quillts`). Early library; naming drift — repo "Quillr", README "quill", install example shows nonexistent `@quill/http`. Needs README/name reconciliation. · updated 2026-06-02
+
 # quill
 
 Type-safe HTTP client for TypeScript with interceptors and retries.
