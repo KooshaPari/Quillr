@@ -1,5 +1,5 @@
 > **Work state:** SCAFFOLD · **Progress:** `███░░░░░░░ 30%`
-> Type-safe TypeScript HTTP client (npm `@kooshapari/quillts`). Early library; naming drift — repo "Quillr", README "quill", install example shows nonexistent `@quill/http`. Needs README/name reconciliation. · updated 2026-06-02
+> Type-safe TypeScript HTTP client framework (npm `@kooshapari/quillts`). GOAL: the org-shared TS HTTP surface (interceptors/retries/mocking) replacing per-app fetch wrappers; early. Naming drift — repo "Quillr"/README "quill"/install shows nonexistent `@quill/http` — to reconcile. · updated 2026-06-02
 
 # quill
 
