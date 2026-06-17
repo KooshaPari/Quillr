@@ -1,3 +1,7 @@
+> **Work-state:** beta — `[#######---] 70%`
+>
+> Type-safe TypeScript HTTP client with interceptors, retries, and mocking. Core features complete. Pending: advanced middleware chain, streaming request/response support, edge-case error handling.
+
 # quill
 
 Type-safe HTTP client for TypeScript with interceptors and retries.
