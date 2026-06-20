@@ -40,3 +40,7 @@ path = "tests/retry_test.rs"
 [[test]]
 name = "circuit_breaker"
 path = "tests/circuit_breaker_test.rs"
+
+[[test]]
+name = "cors"
+path = "tests/cors_test.rs"

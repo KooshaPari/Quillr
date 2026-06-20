@@ -3,6 +3,8 @@ use std::time::{Duration, Instant};
 
 use crate::error::HttptoraError;
 
+use super::clock::{system_clock, Clock};
+
 /// Rate limiter strategy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum RateLimitStrategy {
@@ -40,23 +42,26 @@ struct TokenBucket {
     refill_rate: f64,
     tokens: f64,
     last_refill: Instant,
+    clock: Clock,
 }
 
 impl TokenBucket {
-    fn new(capacity: u64, refill_rate: f64) -> Self {
+    fn new(capacity: u64, refill_rate: f64, clock: Clock) -> Self {
         let cap = capacity as f64;
+        let last_refill = clock();
         Self {
             capacity: cap,
             refill_rate,
             tokens: cap,
-            last_refill: Instant::now(),
+            last_refill,
+            clock,
         }
     }
 
     /// Attempt to consume `tokens`. Returns `Ok(())` on success, or
     /// `Err(wait_duration)` if the caller must wait.
     fn consume(&mut self, tokens: f64) -> Result<(), Duration> {
-        let now = Instant::now();
+        let now = (self.clock)();
         let elapsed = now.duration_since(self.last_refill).as_secs_f64();
         self.tokens = (self.capacity).min(self.tokens + elapsed * self.refill_rate);
         self.last_refill = now;
@@ -81,20 +86,23 @@ struct FixedWindow {
     window: Duration,
     count: u64,
     window_start: Instant,
+    clock: Clock,
 }
 
 impl FixedWindow {
-    fn new(limit: u64, window_seconds: f64) -> Self {
+    fn new(limit: u64, window_seconds: f64, clock: Clock) -> Self {
+        let window_start = clock();
         Self {
             limit,
             window: Duration::from_secs_f64(window_seconds),
             count: 0,
-            window_start: Instant::now(),
+            window_start,
+            clock,
         }
     }
 
     fn consume(&mut self) -> Result<(), Duration> {
-        let now = Instant::now();
+        let now = (self.clock)();
         if now.duration_since(self.window_start) >= self.window {
             self.count = 0;
             self.window_start = now;
@@ -143,25 +151,41 @@ impl RateLimiter {
 
     /// Create a token-bucket rate limiter (burst-friendly).
     pub fn token_bucket(capacity: u64, refill_per_sec: f64) -> Self {
+        Self::token_bucket_with_clock(capacity, refill_per_sec, system_clock())
+    }
+
+    pub fn token_bucket_with_clock(capacity: u64, refill_per_sec: f64, clock: Clock) -> Self {
         Self {
             config: RateLimitConfig {
                 capacity,
                 refill_rate: refill_per_sec,
                 strategy: RateLimitStrategy::TokenBucket,
             },
-            inner: Mutex::new(Inner::TokenBucket(TokenBucket::new(capacity, refill_per_sec))),
+            inner: Mutex::new(Inner::TokenBucket(TokenBucket::new(
+                capacity,
+                refill_per_sec,
+                clock,
+            ))),
         }
     }
 
     /// Create a fixed-window rate limiter.
     pub fn fixed_window(limit: u64, window_seconds: f64) -> Self {
+        Self::fixed_window_with_clock(limit, window_seconds, system_clock())
+    }
+
+    pub fn fixed_window_with_clock(limit: u64, window_seconds: f64, clock: Clock) -> Self {
         Self {
             config: RateLimitConfig {
                 capacity: limit,
                 refill_rate: window_seconds,
                 strategy: RateLimitStrategy::FixedWindow,
             },
-            inner: Mutex::new(Inner::FixedWindow(FixedWindow::new(limit, window_seconds))),
+            inner: Mutex::new(Inner::FixedWindow(FixedWindow::new(
+                limit,
+                window_seconds,
+                clock,
+            ))),
         }
     }
 

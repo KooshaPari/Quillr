@@ -26,8 +26,9 @@ pub mod middleware;
 pub use builder::{RequestExtractor, ResponseBuilder};
 pub use error::HttptoraError;
 pub use middleware::circuit_breaker::CircuitBreaker;
+pub use middleware::cors::{CorsConfig, CorsLayer};
 pub use middleware::rate_limit::RateLimiter;
-pub use middleware::retry::{BackoffConfig, RetryConfig, RetryLayer};
+pub use middleware::retry::{BackoffConfig, HttpMethod, RetryConfig, RetryLayer};
 
 // Re-export key config types
 pub use middleware::circuit_breaker::CircuitBreakerConfig;

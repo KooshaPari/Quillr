@@ -1,5 +1,7 @@
 use httpora_core::error::HttptoraError;
 use httpora_core::middleware::rate_limit::RateLimiter;
+use std::sync::{Arc, Mutex};
+use std::time::{Duration, Instant};
 
 #[test]
 fn token_bucket_initial_burst() {
@@ -47,4 +49,20 @@ fn different_token_amounts() {
     assert!(limiter.check(5.0).is_ok());
     // Should be empty now
     assert!(limiter.check(1.0).is_err());
+}
+
+#[test]
+fn token_bucket_accepts_injected_clock() {
+    let now = Arc::new(Mutex::new(Instant::now()));
+    let clock_now = Arc::clone(&now);
+    let limiter = RateLimiter::token_bucket_with_clock(
+        1,
+        1.0,
+        Arc::new(move || *clock_now.lock().unwrap()),
+    );
+
+    assert!(limiter.check(1.0).is_ok());
+    assert!(limiter.check(1.0).is_err());
+    *now.lock().unwrap() += Duration::from_secs(1);
+    assert!(limiter.check(1.0).is_ok());
 }

@@ -3,6 +3,8 @@ use std::time::{Duration, Instant};
 
 use crate::error::HttptoraError;
 
+use super::clock::{system_clock, Clock};
+
 /// Circuit breaker state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CircuitState {
@@ -55,6 +57,7 @@ impl Default for CircuitBreakerConfig {
 pub struct CircuitBreaker {
     config: CircuitBreakerConfig,
     inner: Mutex<BreakerInner>,
+    clock: Clock,
 }
 
 struct BreakerInner {
@@ -68,23 +71,33 @@ impl CircuitBreaker {
     /// Create a circuit breaker with the default configuration overridden by
     /// the given failure threshold and reset timeout.
     pub fn new(failure_threshold: f64, reset_timeout: Duration) -> Self {
-        Self {
-            config: CircuitBreakerConfig {
+        Self::with_config_and_clock(
+            CircuitBreakerConfig {
                 failure_threshold,
                 reset_timeout,
                 ..Default::default()
             },
-            inner: Mutex::new(BreakerInner {
-                state: CircuitState::Closed,
-                window: Vec::new(),
-                opened_at: None,
-                half_open_probe_count: 0,
-            }),
-        }
+            system_clock(),
+        )
+    }
+
+    pub fn new_with_clock(failure_threshold: f64, reset_timeout: Duration, clock: Clock) -> Self {
+        Self::with_config_and_clock(
+            CircuitBreakerConfig {
+                failure_threshold,
+                reset_timeout,
+                ..Default::default()
+            },
+            clock,
+        )
     }
 
     /// Create a circuit breaker with a fully custom configuration.
     pub fn with_config(config: CircuitBreakerConfig) -> Self {
+        Self::with_config_and_clock(config, system_clock())
+    }
+
+    pub fn with_config_and_clock(config: CircuitBreakerConfig, clock: Clock) -> Self {
         Self {
             config,
             inner: Mutex::new(BreakerInner {
@@ -93,6 +106,7 @@ impl CircuitBreaker {
                 opened_at: None,
                 half_open_probe_count: 0,
             }),
+            clock,
         }
     }
 
@@ -109,7 +123,8 @@ impl CircuitBreaker {
         let mut inner = self.inner.lock().unwrap();
 
         if inner.state == CircuitState::Open {
-            let elapsed = Instant::now().duration_since(inner.opened_at.unwrap_or(Instant::now()));
+            let now = (self.clock)();
+            let elapsed = now.duration_since(inner.opened_at.unwrap_or(now));
             if elapsed >= self.config.reset_timeout {
                 inner.state = CircuitState::HalfOpen;
                 inner.half_open_probe_count = 0;
@@ -151,7 +166,7 @@ impl CircuitBreaker {
 
         if inner.state == CircuitState::HalfOpen {
             // Probe failed — reopen.
-            inner.opened_at = Some(Instant::now());
+            inner.opened_at = Some((self.clock)());
             inner.state = CircuitState::Open;
             return;
         }
@@ -171,7 +186,7 @@ impl CircuitBreaker {
         let rate = failures as f64 / inner.window.len() as f64;
         if rate >= self.config.failure_threshold {
             inner.state = CircuitState::Open;
-            inner.opened_at = Some(Instant::now());
+            inner.opened_at = Some((self.clock)());
         }
     }
 }
