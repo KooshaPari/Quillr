@@ -5,6 +5,28 @@ use std::future::Future;
 
 use crate::error::HttptoraError;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum HttpMethod {
+    Get,
+    Head,
+    Put,
+    Delete,
+    Options,
+    Trace,
+    Post,
+    Patch,
+    Other,
+}
+
+impl HttpMethod {
+    pub fn is_idempotent(self) -> bool {
+        matches!(
+            self,
+            Self::Get | Self::Head | Self::Put | Self::Delete | Self::Options | Self::Trace
+        )
+    }
+}
+
 /// Back-off configuration for retry logic.
 #[derive(Debug, Clone)]
 pub struct BackoffConfig {
@@ -36,6 +58,7 @@ pub struct RetryConfig {
     pub max_attempts: usize,
     /// Back-off configuration.
     pub backoff: BackoffConfig,
+    pub retry_non_idempotent: bool,
 }
 
 impl Default for RetryConfig {
@@ -43,6 +66,7 @@ impl Default for RetryConfig {
         Self {
             max_attempts: 3,
             backoff: BackoffConfig::default(),
+            retry_non_idempotent: false,
         }
     }
 }
@@ -76,6 +100,7 @@ impl RetryLayer {
                     base_delay,
                     ..Default::default()
                 },
+                retry_non_idempotent: false,
             },
         }
     }
@@ -83,6 +108,10 @@ impl RetryLayer {
     /// Create a retry layer with a fully custom configuration.
     pub fn with_config(config: RetryConfig) -> Self {
         Self { config }
+    }
+
+    pub fn should_retry_method(&self, method: HttpMethod) -> bool {
+        method.is_idempotent() || self.config.retry_non_idempotent
     }
 
     /// Execute `f`, retrying on failure up to `max_attempts` times.
@@ -121,6 +150,27 @@ impl RetryLayer {
         Err(HttptoraError::RetryExhausted {
             attempts: self.config.max_attempts,
             reason,
+        })
+    }
+
+    #[cfg(feature = "tower")]
+    pub async fn execute_for_method<F, Fut, T, E>(
+        &self,
+        method: HttpMethod,
+        f: F,
+    ) -> Result<T, HttptoraError>
+    where
+        F: Fn() -> Fut,
+        Fut: Future<Output = Result<T, E>>,
+        E: std::fmt::Display,
+    {
+        if self.should_retry_method(method) {
+            return self.execute(f).await;
+        }
+
+        f().await.map_err(|e| HttptoraError::RetryExhausted {
+            attempts: 1,
+            reason: e.to_string(),
         })
     }
 

@@ -1,5 +1,5 @@
 use httpora_core::error::HttptoraError;
-use httpora_core::middleware::retry::{RetryLayer};
+use httpora_core::middleware::retry::{HttpMethod, RetryConfig, RetryLayer};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Duration;
 
@@ -57,4 +57,26 @@ async fn retry_error_contains_reason() {
         }
         other => panic!("expected RetryExhausted, got {other:?}"),
     }
+}
+
+#[test]
+fn retry_policy_defaults_to_idempotent_methods() {
+    let retry = RetryLayer::new(3, Duration::from_millis(10));
+
+    assert!(retry.should_retry_method(HttpMethod::Get));
+    assert!(retry.should_retry_method(HttpMethod::Put));
+    assert!(retry.should_retry_method(HttpMethod::Delete));
+    assert!(!retry.should_retry_method(HttpMethod::Post));
+    assert!(!retry.should_retry_method(HttpMethod::Patch));
+}
+
+#[test]
+fn retry_policy_can_opt_into_non_idempotent_methods() {
+    let retry = RetryLayer::with_config(RetryConfig {
+        retry_non_idempotent: true,
+        ..Default::default()
+    });
+
+    assert!(retry.should_retry_method(HttpMethod::Post));
+    assert!(retry.should_retry_method(HttpMethod::Patch));
 }

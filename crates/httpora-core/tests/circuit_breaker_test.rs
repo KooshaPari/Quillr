@@ -1,6 +1,8 @@
 use httpora_core::error::HttptoraError;
 use httpora_core::middleware::circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
+use std::sync::{Arc, Mutex};
 use std::time::Duration;
+use std::time::Instant;
 
 #[test]
 fn circuit_starts_closed() {
@@ -95,4 +97,27 @@ fn does_not_trip_below_min_requests() {
     cb.on_success();
     cb.on_failure();
     assert_eq!(cb.state(), CircuitState::Closed);
+}
+
+#[test]
+fn circuit_breaker_accepts_injected_clock() {
+    let now = Arc::new(Mutex::new(Instant::now()));
+    let clock_now = Arc::clone(&now);
+    let cb = CircuitBreaker::with_config_and_clock(
+        CircuitBreakerConfig {
+            failure_threshold: 0.0,
+            reset_timeout: Duration::from_secs(10),
+            min_requests: 1,
+            ..Default::default()
+        },
+        Arc::new(move || *clock_now.lock().unwrap()),
+    );
+
+    cb.on_failure();
+    assert_eq!(cb.state(), CircuitState::Open);
+    assert!(cb.before_request().is_err());
+
+    *now.lock().unwrap() += Duration::from_secs(10);
+    assert!(cb.before_request().is_ok());
+    assert_eq!(cb.state(), CircuitState::HalfOpen);
 }
