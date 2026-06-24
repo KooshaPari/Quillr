@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 
 /**
  * Quill HTTP Client Tests
- * 
+ *
  * Tests for the type-safe HTTP client with interceptors and retries.
  */
 
@@ -32,7 +32,7 @@ describe('Client Configuration', () => {
   it('should accept base URL configuration', () => {
     const config = {
       baseUrl: 'https://api.example.com',
-      headers: { 'Authorization': 'Bearer token' },
+      headers: { Authorization: 'Bearer token' },
     };
     expect(config.baseUrl).toBe('https://api.example.com');
   });
@@ -40,7 +40,7 @@ describe('Client Configuration', () => {
   it('should support custom headers', () => {
     const headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer test',
+      Authorization: 'Bearer test',
     };
     expect(headers['Content-Type']).toBe('application/json');
   });
