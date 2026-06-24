@@ -195,9 +195,7 @@ mod tests {
     #[tokio::test]
     async fn retry_succeeds_on_first_attempt() {
         let retry = RetryLayer::new(3, Duration::from_millis(10));
-        let result = retry
-            .execute(|| async { Ok::<_, String>(42) })
-            .await;
+        let result = retry.execute(|| async { Ok::<_, String>(42) }).await;
         assert_eq!(result.unwrap(), 42);
     }
 

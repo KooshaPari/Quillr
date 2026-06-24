@@ -1,5 +1,7 @@
 use httpora_core::error::HttptoraError;
-use httpora_core::middleware::circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
+use httpora_core::middleware::circuit_breaker::{
+    CircuitBreaker, CircuitBreakerConfig, CircuitState,
+};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use std::time::Instant;
