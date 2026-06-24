@@ -42,11 +42,16 @@ impl ResponseBuilder {
     /// Build a JSON response with Content-Type set.
     #[cfg(feature = "serde_json")]
     pub fn json(status: u16, payload: &serde_json::Value) -> Result<HttpResponse, HttptoraError> {
-        let body = serde_json::to_vec(payload)
-            .map_err(|e| HttptoraError::ParseError { detail: e.to_string() })?;
+        let body = serde_json::to_vec(payload).map_err(|e| HttptoraError::ParseError {
+            detail: e.to_string(),
+        })?;
         let mut headers = HashMap::new();
         headers.insert("Content-Type".into(), "application/json".into());
-        Ok(HttpResponse { status, body, headers })
+        Ok(HttpResponse {
+            status,
+            body,
+            headers,
+        })
     }
 
     /// Build a plain-text response.
@@ -87,8 +92,9 @@ impl RequestExtractor {
     /// Parse the request body as JSON.
     #[cfg(feature = "serde_json")]
     pub fn json_body(request: &HttpRequest) -> Result<serde_json::Value, HttptoraError> {
-        serde_json::from_slice(&request.body)
-            .map_err(|e| HttptoraError::ParseError { detail: e.to_string() })
+        serde_json::from_slice(&request.body).map_err(|e| HttptoraError::ParseError {
+            detail: e.to_string(),
+        })
     }
 
     /// Extract the Bearer token from the Authorization header, or `None`.
@@ -97,11 +103,7 @@ impl RequestExtractor {
             .headers
             .get("Authorization")
             .or_else(|| request.headers.get("authorization"))?;
-        if let Some(token) = auth.strip_prefix("Bearer ") {
-            Some(token.to_owned())
-        } else {
-            None
-        }
+        auth.strip_prefix("Bearer ").map(str::to_owned)
     }
 
     /// Case-insensitive header lookup.

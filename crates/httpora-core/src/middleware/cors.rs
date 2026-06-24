@@ -116,7 +116,10 @@ impl CorsLayer {
         };
         headers.insert("Access-Control-Allow-Origin".to_owned(), value.to_owned());
         if self.config.allow_credentials {
-            headers.insert("Access-Control-Allow-Credentials".to_owned(), "true".to_owned());
+            headers.insert(
+                "Access-Control-Allow-Credentials".to_owned(),
+                "true".to_owned(),
+            );
         }
     }
 }

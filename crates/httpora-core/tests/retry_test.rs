@@ -6,9 +6,7 @@ use std::time::Duration;
 #[tokio::test]
 async fn retry_succeeds_on_first_attempt() {
     let retry = RetryLayer::new(3, Duration::from_millis(10));
-    let result = retry
-        .execute(|| async { Ok::<_, String>(42) })
-        .await;
+    let result = retry.execute(|| async { Ok::<_, String>(42) }).await;
     assert_eq!(result.unwrap(), 42);
 }
 
@@ -53,7 +51,10 @@ async fn retry_error_contains_reason() {
     match result {
         Err(HttptoraError::RetryExhausted { attempts, reason }) => {
             assert_eq!(attempts, 1);
-            assert!(reason.contains("broke"), "reason should mention error: {reason}");
+            assert!(
+                reason.contains("broke"),
+                "reason should mention error: {reason}"
+            );
         }
         other => panic!("expected RetryExhausted, got {other:?}"),
     }

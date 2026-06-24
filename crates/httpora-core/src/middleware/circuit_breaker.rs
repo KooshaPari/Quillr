@@ -62,7 +62,7 @@ pub struct CircuitBreaker {
 
 struct BreakerInner {
     state: CircuitState,
-    window: Vec<bool>,        // true = success, false = failure
+    window: Vec<bool>, // true = success, false = failure
     opened_at: Option<Instant>,
     half_open_probe_count: usize,
 }

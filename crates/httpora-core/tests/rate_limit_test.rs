@@ -55,11 +55,8 @@ fn different_token_amounts() {
 fn token_bucket_accepts_injected_clock() {
     let now = Arc::new(Mutex::new(Instant::now()));
     let clock_now = Arc::clone(&now);
-    let limiter = RateLimiter::token_bucket_with_clock(
-        1,
-        1.0,
-        Arc::new(move || *clock_now.lock().unwrap()),
-    );
+    let limiter =
+        RateLimiter::token_bucket_with_clock(1, 1.0, Arc::new(move || *clock_now.lock().unwrap()));
 
     assert!(limiter.check(1.0).is_ok());
     assert!(limiter.check(1.0).is_err());
