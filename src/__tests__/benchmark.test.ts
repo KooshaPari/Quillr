@@ -7,15 +7,15 @@ import { describe, it } from 'vitest';
 describe('performance', () => {
   it('benchmarks client initialization', async () => {
     const start = performance.now();
-    const client = { initialized: true };
+    const _client = { initialized: true };
     const end = performance.now();
-    console.log(`Client init: ${end - start}ms`);
+    console.warn(`Client init: ${end - start}ms`);
   });
 
   it('benchmarks API call simulation', async () => {
     const start = performance.now();
-    const result = await Promise.resolve({ data: 'test' });
+    const _result = await Promise.resolve({ data: 'test' });
     const end = performance.now();
-    console.log(`API call: ${end - start}ms`);
+    console.warn(`API call: ${end - start}ms`);
   });
 });

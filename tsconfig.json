@@ -9,6 +9,7 @@
     "forceConsistentCasingInFileNames": true,
     "declaration": true,
     "declarationMap": true,
+    "types": ["vitest/globals", "node"],
     "outDir": "./dist",
     "rootDir": "./src"
   },

@@ -4,6 +4,7 @@
  * FR-QLL-006: Error Types
  * Verifies: HttpError, NetworkError, TimeoutError are properly thrown
  */
+import { describe, it, expect } from 'vitest';
 
 describe('FR-QLL-001: Client Creation', () => {
   it('should make authenticated requests', () => {
