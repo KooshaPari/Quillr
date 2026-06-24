@@ -1,36 +1,60 @@
-import { defineConfig } from 'vitepress'
+import { defineConfig } from 'vitepress';
 
+// https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: "Project",
-  description: "Documentation",
+  title: 'Quillr',
+  description: 'Multi-language HTTP toolkit for the Phenotype ecosystem.',
+  cleanUrls: true,
+  ignoreDeadLinks: true,
+  // Exclude the pre-existing project markdown directories so VitePress does
+  // not attempt to render them — they use a project-specific frontmatter
+  // layout (e.g. `layout: doc`) that is not a valid VitePress layout.
+  srcExclude: [
+    'journeys/**',
+    'research/**',
+    'stories/**',
+    'traceability/**',
+    'node_modules/**',
+    '.vitepress/cache/**',
+    '.vitepress/dist/**',
+  ],
+  head: [
+    ['meta', { name: 'theme-color', content: '#1f2937' }],
+    ['meta', { property: 'og:title', content: 'Quillr' }],
+    [
+      'meta',
+      {
+        property: 'og:description',
+        content: 'Multi-language HTTP toolkit for the Phenotype ecosystem.',
+      },
+    ],
+  ],
   themeConfig: {
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Journeys', link: '/journeys/' },
-      { text: 'Stories', link: '/stories/' },
-      { text: 'Traceability', link: '/traceability/' },
+      { text: 'Getting Started', link: '/getting-started' },
     ],
-    sidebar: {
-      '/journeys/': [{
-        text: 'Journeys',
+    sidebar: [
+      {
+        text: 'Introduction',
         items: [
-          { text: 'Overview', link: '/journeys/' },
-          { text: 'Quick Start', link: '/journeys/quick-start' },
-        ]
-      }],
-      '/stories/': [{
-        text: 'Stories',
-        items: [
-          { text: 'Overview', link: '/stories/' },
-          { text: 'Hello World', link: '/stories/hello-world' },
-        ]
-      }],
-      '/traceability/': [{
-        text: 'Traceability',
-        items: [
-          { text: 'Overview', link: '/traceability/' },
-        ]
-      }],
-    }
-  }
-})
+          { text: 'What is Quillr?', link: '/' },
+          { text: 'Getting Started', link: '/getting-started' },
+        ],
+      },
+    ],
+    socialLinks: [
+      {
+        icon: 'github',
+        link: 'https://github.com/KooshaPari/Quillr',
+      },
+    ],
+    footer: {
+      message: 'Released under the MIT License.',
+      copyright: 'Copyright © 2026 Quillr contributors',
+    },
+    search: {
+      provider: 'local',
+    },
+  },
+});
