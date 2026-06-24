@@ -5,12 +5,14 @@ description = "{{ project_description }}"
 readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
+description = "Quillr — HTTP-middleware runtime boundary (httpora-core Rust + TS middleware)"
 authors = [
-    { name = "{{ author_name }}", email = "{{ author_email }}" }
+    { name = "Koosha Pari", email = "kooshapari@gmail.com" }
 ]
 
-dependencies = []
-
+dependencies = [
+    # httpora-core is consumed via workspace path in crates/; no runtime python deps
+]
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
