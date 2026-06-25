@@ -1,3 +1,5 @@
+> **Work state:** SCAFFOLD · **Progress:** `[#######---] 70%`
+
 > **Work state:** SCAFFOLD · **Progress:** `████░░░░░░ 40%`
 > The org-shared HTTP toolkit spanning **Rust + TypeScript** — rate limiting, retries, circuit breakers, interceptors, and mocking. TypeScript client published as `@kooshapari/quillts`. Rust middleware published as `httpora-core` crate. · updated 2026-06-20
 
