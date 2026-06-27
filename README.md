@@ -1,9 +1,44 @@
-> **Work state:** SCAFFOLD · **Progress:** `████░░░░░░ 40%`
-> The org-shared HTTP toolkit spanning **Rust + TypeScript** — rate limiting, retries, circuit breakers, interceptors, and mocking. TypeScript client published as `@kooshapari/quillts`. Rust middleware published as `httpora-core` crate. · updated 2026-06-20
+> **Work state:** RELEASE-CANDIDATE · **Progress:** `████████░░ 80%`
+> The org-shared HTTP toolkit spanning **Rust + TypeScript** — rate limiting, retries, circuit breakers, interceptors, and mocking. TypeScript client published as `@kooshapari/quillts`. Rust middleware published as `httpora-core` crate. · updated 2026-06-26
 
 # Quillr
 
 Multi-language HTTP toolkit for the Phenotype ecosystem. Quillr provides composable HTTP primitives — rate limiting, retries, circuit breakers, interceptors, and mocking — as first-class citizens in both **TypeScript** and **Rust**.
+
+## State
+
+Progress: `[████████░░] 80%` — TypeScript client scaffold + Rust `httpora-core` middleware landed; CI green, release-candidate README polish in flight.
+
+**What Quillr does:** Quillr is the Phenotype org's shared HTTP toolkit spanning **Rust and TypeScript** — composable rate limiting, retries, circuit breakers, interceptors, and mocking as first-class citizens. The TypeScript package (`@kooshapari/quillts`) is a type-safe HTTP client with interceptors and built-in test utilities; the Rust crate (`httpora-core`) provides Tower-compatible middleware for production services.
+
+## Usage / Quickstart
+
+```bash
+git clone https://github.com/KooshaPari/Quillr.git && cd Quillr
+npm install
+npm run build && npm test
+
+# Rust middleware crate
+cd crates/httpora-core
+cargo build --release && cargo test
+```
+
+Install the published TypeScript client in your app:
+
+```bash
+npm install @kooshapari/quillts
+```
+
+```typescript
+import { createClient } from '@kooshapari/quillts';
+
+const api = createClient({
+  baseUrl: 'https://api.example.com',
+  headers: { Authorization: 'Bearer token' },
+});
+
+const user = await api.get<User>('/users/123');
+```
 
 ## Packages
 
