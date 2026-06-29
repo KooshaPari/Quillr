@@ -1,5 +1,5 @@
 # TypeScript/Node.js Multi-Stage Build
-FROM node:25-slim as builder
+FROM node:26-slim as builder
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ COPY src ./src
 RUN npm run build
 
 # Runtime stage
-FROM node:25-slim
+FROM node:26-slim
 
 WORKDIR /app
 
