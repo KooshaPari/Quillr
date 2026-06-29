@@ -15,10 +15,12 @@ tokio = { version = "1", features = ["time"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 fastrand = "2"
+tracing = { version = "0.1", optional = true }
 
 [features]
 default = ["full"]
-full = ["tower", "serde", "serde_json"]
+full = ["tower", "serde", "serde_json", "tracing"]
+tracing = ["dep:tracing"]
 tower = ["dep:tower", "dep:pin-project", "dep:futures-core", "dep:tokio"]
 serde = ["dep:serde"]
 serde_json = ["dep:serde_json"]

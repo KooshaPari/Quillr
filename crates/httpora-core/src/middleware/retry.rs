@@ -102,8 +102,25 @@ impl RetryLayer {
 
         for attempt in 0..self.config.max_attempts {
             match f().await {
-                Ok(value) => return Ok(value),
+                Ok(value) => {
+                    if attempt > 0 {
+                        #[cfg(feature = "tracing")]
+                        tracing::info!(
+                            attempt = attempt,
+                            max_attempts = self.config.max_attempts,
+                            "retry succeeded"
+                        );
+                    }
+                    return Ok(value);
+                }
                 Err(e) => {
+                    #[cfg(feature = "tracing")]
+                    tracing::warn!(
+                        attempt = attempt,
+                        max_attempts = self.config.max_attempts,
+                        error = %e,
+                        "retry attempt failed"
+                    );
                     last_error = Some(e);
                     if attempt < self.config.max_attempts - 1 {
                         let delay = self.compute_delay(attempt);
@@ -117,6 +134,13 @@ impl RetryLayer {
             .as_ref()
             .map(|e| e.to_string())
             .unwrap_or_else(|| "unknown error".to_owned());
+
+        #[cfg(feature = "tracing")]
+        tracing::error!(
+            attempts = self.config.max_attempts,
+            reason = %reason,
+            "retry exhausted"
+        );
 
         Err(HttptoraError::RetryExhausted {
             attempts: self.config.max_attempts,
@@ -145,9 +169,7 @@ mod tests {
     #[tokio::test]
     async fn retry_succeeds_on_first_attempt() {
         let retry = RetryLayer::new(3, Duration::from_millis(10));
-        let result = retry
-            .execute(|| async { Ok::<_, String>(42) })
-            .await;
+        let result = retry.execute(|| async { Ok::<_, String>(42) }).await;
         assert_eq!(result.unwrap(), 42);
     }
 

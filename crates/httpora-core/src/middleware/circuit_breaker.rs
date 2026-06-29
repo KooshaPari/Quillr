@@ -59,7 +59,7 @@ pub struct CircuitBreaker {
 
 struct BreakerInner {
     state: CircuitState,
-    window: Vec<bool>,        // true = success, false = failure
+    window: Vec<bool>, // true = success, false = failure
     opened_at: Option<Instant>,
     half_open_probe_count: usize,
 }
@@ -111,18 +111,32 @@ impl CircuitBreaker {
         if inner.state == CircuitState::Open {
             let elapsed = Instant::now().duration_since(inner.opened_at.unwrap_or(Instant::now()));
             if elapsed >= self.config.reset_timeout {
+                #[cfg(feature = "tracing")]
+                tracing::info!("circuit breaker transitioning from Open to HalfOpen");
                 inner.state = CircuitState::HalfOpen;
                 inner.half_open_probe_count = 0;
             } else {
+                #[cfg(feature = "tracing")]
+                tracing::warn!("circuit breaker is Open; request blocked");
                 return Err(HttptoraError::CircuitOpen);
             }
         }
 
         if inner.state == CircuitState::HalfOpen {
             if inner.half_open_probe_count >= self.config.half_open_max_requests {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(
+                    half_open_probe_count = inner.half_open_probe_count,
+                    "circuit breaker HalfOpen probe limit reached"
+                );
                 return Err(HttptoraError::CircuitOpen);
             }
             inner.half_open_probe_count += 1;
+            #[cfg(feature = "tracing")]
+            tracing::debug!(
+                probe = inner.half_open_probe_count,
+                "circuit breaker allowing HalfOpen probe"
+            );
         }
 
         Ok(())
@@ -133,6 +147,8 @@ impl CircuitBreaker {
         let mut inner = self.inner.lock().unwrap();
 
         if inner.state == CircuitState::HalfOpen {
+            #[cfg(feature = "tracing")]
+            tracing::info!("circuit breaker probe succeeded; closing circuit");
             // Probe succeeded — close the circuit.
             inner.state = CircuitState::Closed;
             inner.window.clear();
@@ -150,6 +166,8 @@ impl CircuitBreaker {
         let mut inner = self.inner.lock().unwrap();
 
         if inner.state == CircuitState::HalfOpen {
+            #[cfg(feature = "tracing")]
+            tracing::warn!("circuit breaker probe failed; reopening circuit");
             // Probe failed — reopen.
             inner.opened_at = Some(Instant::now());
             inner.state = CircuitState::Open;
@@ -170,6 +188,12 @@ impl CircuitBreaker {
         let failures = inner.window.iter().filter(|&&s| !s).count();
         let rate = failures as f64 / inner.window.len() as f64;
         if rate >= self.config.failure_threshold {
+            #[cfg(feature = "tracing")]
+            tracing::warn!(
+                failure_rate = rate,
+                threshold = self.config.failure_threshold,
+                "circuit breaker tripping Open"
+            );
             inner.state = CircuitState::Open;
             inner.opened_at = Some(Instant::now());
         }

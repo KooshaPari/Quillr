@@ -149,7 +149,10 @@ impl RateLimiter {
                 refill_rate: refill_per_sec,
                 strategy: RateLimitStrategy::TokenBucket,
             },
-            inner: Mutex::new(Inner::TokenBucket(TokenBucket::new(capacity, refill_per_sec))),
+            inner: Mutex::new(Inner::TokenBucket(TokenBucket::new(
+                capacity,
+                refill_per_sec,
+            ))),
         }
     }
 
@@ -177,7 +180,15 @@ impl RateLimiter {
         };
         match result {
             Ok(()) => Ok(()),
-            Err(wait) => Err(HttptoraError::RateLimited { retry_after: wait }),
+            Err(wait) => {
+                #[cfg(feature = "tracing")]
+                tracing::warn!(
+                    retry_after_ms = wait.as_millis(),
+                    tokens = tokens,
+                    "rate limited"
+                );
+                Err(HttptoraError::RateLimited { retry_after: wait })
+            }
         }
     }
 }
