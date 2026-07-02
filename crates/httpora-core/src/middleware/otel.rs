@@ -565,6 +565,6 @@ mod tests {
     #[test]
     fn test_otel_error_into_httpora_error() {
         let e: HttptoraError = OtelError::InvalidTraceparent("bad".to_string()).into();
-        assert!(matches!(e, HttptoraError::Middleware(_)));
+        assert!(matches!(e, HttptoraError::ParseError { .. }));
     }
 }
