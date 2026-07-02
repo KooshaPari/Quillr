@@ -15,6 +15,9 @@ tokio = { version = "1", features = ["time"], optional = true }
 serde = { version = "1", features = ["derive"], optional = true }
 serde_json = { version = "1", optional = true }
 fastrand = "2"
+http = "1"
+http-body = "1"
+tracing = "0.1"
 
 [features]
 default = ["full"]
@@ -28,6 +31,8 @@ tokio = { version = "1", features = ["rt", "macros", "time"] }
 tower = { version = "0.5", features = ["util"] }
 pin-project = "1"
 futures-core = "0.3"
+bytes = "1"
+http = "1"
 
 [[test]]
 name = "rate_limit"
