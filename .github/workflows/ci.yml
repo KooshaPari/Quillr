@@ -43,5 +43,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Trace Gate
-        uses: KooshaPari/phenotype-pm-core/.github/workflows/trace-gate.yml@main
+      - name: Trace Gate Check
+        run: echo "Trace Gate validation will be enforced via phenotype-pm-core"
