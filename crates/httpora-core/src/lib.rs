@@ -30,3 +30,5 @@ pub use middleware::cors::{CorsConfig, CorsLayer};
 #[cfg(feature = "tower")]
 pub use middleware::otel::{OtelConfig, OtelLayer};
 pub use middleware::rate_limit::{RateLimitConfig, RateLimiter};
+#[cfg(feature = "tower")]
+pub use middleware::retry::{RetryConfig, RetryLayer};

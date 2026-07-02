@@ -7,8 +7,6 @@
 //! asymptote and are deliberately marked #[ignore]. They will pass only
 //! when the feature is correctly implemented.
 
-use std::time::Duration;
-
 // ---------------------------------------------------------------------------
 // FR-8: Token Bucket Rate Limiter
 // ---------------------------------------------------------------------------
