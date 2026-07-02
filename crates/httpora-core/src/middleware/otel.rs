@@ -19,6 +19,8 @@
 
 use crate::error::HttptoraError;
 use http::{HeaderMap, Request, Response};
+#[allow(unused_imports)]
+use http_body;
 use std::task::{Context, Poll};
 use std::time::Instant;
 use tower::{Layer, Service};
@@ -186,7 +188,7 @@ impl<S> OtelMiddleware<S> {
     /// Should this request be sampled, given the config's sample_ratio?
     /// Deterministic for testability (always-samples if ratio is 1.0,
     /// never if 0.0; otherwise samples on first hash byte being < ratio*256).
-    pub fn should_sample(&self, req: &Request<impl http::body::Body>) -> bool {
+    pub fn should_sample(&self, req: &Request<impl http_body::Body>) -> bool {
         if self.config.sample_ratio >= 1.0 {
             return true;
         }
@@ -197,7 +199,10 @@ impl<S> OtelMiddleware<S> {
         let key = format!(
             "{}{}",
             req.method().as_str(),
-            req.uri().path_and_query().map(|p| p.as_str()).unwrap_or("/")
+            req.uri()
+                .path_and_query()
+                .map(|p| p.as_str())
+                .unwrap_or("/")
         );
         let h = simple_hash(&key);
         (h as f64 / 256.0) < self.config.sample_ratio
@@ -216,10 +221,10 @@ impl<S> OtelMiddleware<S> {
 
 impl<S, B> Service<Request<B>> for OtelMiddleware<S>
 where
-    S: Service<Request<B>> + Clone,
+    S: Service<Request<B>, Response = Response<B>> + Clone + Send + 'static,
     S::Future: Send + 'static,
     S::Error: std::fmt::Display,
-    B: http::body::Body + Send + 'static,
+    B: http_body::Body + Send + 'static,
     B::Error: std::fmt::Display,
 {
     type Response = Response<B>;
@@ -299,7 +304,7 @@ fn simple_hash(s: &str) -> u8 {
         h ^= *byte as u32;
         h = h.wrapping_mul(0x01000193);
     }
-    (h as u8)
+    h as u8
 }
 
 /// Convenience: apply an OtelLayer to a service. Equivalent to
@@ -330,14 +335,15 @@ impl std::error::Error for OtelError {}
 
 impl From<OtelError> for HttptoraError {
     fn from(e: OtelError) -> Self {
-        HttptoraError::Middleware(format!("otel: {}", e))
+        HttptoraError::ParseError {
+            detail: format!("otel: {}", e),
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use bytes::Bytes;
     use http::Request;
     use tower::service_fn;
 
@@ -360,10 +366,9 @@ mod tests {
     #[test]
     fn test_parse_traceparent_invalid_version() {
         // Version != "00"
-        assert!(parse_traceparent(
-            "01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01"
-        )
-        .is_none());
+        assert!(
+            parse_traceparent("01-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01").is_none()
+        );
     }
 
     #[test]
@@ -375,19 +380,15 @@ mod tests {
     #[test]
     fn test_parse_traceparent_invalid_parent_id_length() {
         // parent_id must be 16 hex chars
-        assert!(parse_traceparent(
-            "00-0af7651916cd43dd8448eb211c80319c-badparent-01"
-        )
-        .is_none());
+        assert!(parse_traceparent("00-0af7651916cd43dd8448eb211c80319c-badparent-01").is_none());
     }
 
     #[test]
     fn test_parse_traceparent_invalid_flags_length() {
         // flags must be 2 hex chars
-        assert!(parse_traceparent(
-            "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-1"
-        )
-        .is_none());
+        assert!(
+            parse_traceparent("00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-1").is_none()
+        );
     }
 
     #[test]
@@ -432,35 +433,32 @@ mod tests {
 
     #[test]
     fn test_should_sample_full_ratio() {
-        let svc = OtelLayer::new(OtelConfig::default().with_sample_ratio(1.0))
-            .layer(service_fn(|_req: Request<bytes::Bytes>| async {
-                Ok::<_, std::io::Error>(Response::new(bytes::Bytes::new()))
-            }));
-        let req = Request::builder().uri("/").body(bytes::Bytes::new()).unwrap();
+        let svc = OtelLayer::new(OtelConfig::default().with_sample_ratio(1.0)).layer(service_fn(
+            |_req: Request<String>| async { Ok::<_, std::io::Error>(Response::new(String::new())) },
+        ));
+        let req = Request::builder().uri("/").body(String::new()).unwrap();
         assert!(svc.should_sample(&req));
     }
 
     #[test]
     fn test_should_sample_zero_ratio() {
-        let svc = OtelLayer::new(OtelConfig::default().with_sample_ratio(0.0))
-            .layer(service_fn(|_req: Request<bytes::Bytes>| async {
-                Ok::<_, std::io::Error>(Response::new(bytes::Bytes::new()))
-            }));
-        let req = Request::builder().uri("/").body(bytes::Bytes::new()).unwrap();
+        let svc = OtelLayer::new(OtelConfig::default().with_sample_ratio(0.0)).layer(service_fn(
+            |_req: Request<String>| async { Ok::<_, std::io::Error>(Response::new(String::new())) },
+        ));
+        let req = Request::builder().uri("/").body(String::new()).unwrap();
         assert!(!svc.should_sample(&req));
     }
 
     #[test]
     fn test_extract_traceparent_present() {
-        let svc = OtelLayer::new(OtelConfig::default())
-            .layer(service_fn(|_req: Request<bytes::Bytes>| async {
-                Ok::<_, std::io::Error>(Response::new(bytes::Bytes::new()))
-            }));
+        let svc = OtelLayer::new(OtelConfig::default()).layer(service_fn(
+            |_req: Request<String>| async { Ok::<_, std::io::Error>(Response::new(String::new())) },
+        ));
         let tp = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
         let req = Request::builder()
             .uri("/")
             .header(TRACEPARENT, tp)
-            .body(bytes::Bytes::new())
+            .body(String::new())
             .unwrap();
         let extracted = svc.extract_traceparent(req.headers());
         assert!(extracted.is_some());
@@ -469,25 +467,25 @@ mod tests {
 
     #[test]
     fn test_extract_traceparent_missing() {
-        let svc = OtelLayer::new(OtelConfig::default())
-            .layer(service_fn(|_req: Request<bytes::Bytes>| async {
-                Ok::<_, std::io::Error>(Response::new(bytes::Bytes::new()))
-            }));
-        let req = Request::builder().uri("/").body(bytes::Bytes::new()).unwrap();
+        let svc = OtelLayer::new(OtelConfig::default()).layer(service_fn(
+            |_req: Request<String>| async { Ok::<_, std::io::Error>(Response::new(String::new())) },
+        ));
+        let req = Request::builder().uri("/").body(String::new()).unwrap();
         assert!(svc.extract_traceparent(req.headers()).is_none());
     }
 
     #[test]
     fn test_extract_traceparent_disabled() {
-        let svc = OtelLayer::new(OtelConfig::default().with_propagate_traceparent(false))
-            .layer(service_fn(|_req: Request<bytes::Bytes>| async {
-                Ok::<_, std::io::Error>(Response::new(bytes::Bytes::new()))
-            }));
+        let svc = OtelLayer::new(OtelConfig::default().with_propagate_traceparent(false)).layer(
+            service_fn(|_req: Request<String>| async {
+                Ok::<_, std::io::Error>(Response::new(String::new()))
+            }),
+        );
         let tp = "00-0af7651916cd43dd8448eb211c80319c-b7ad6b7169203331-01";
         let req = Request::builder()
             .uri("/")
             .header(TRACEPARENT, tp)
-            .body(bytes::Bytes::new())
+            .body(String::new())
             .unwrap();
         assert!(svc.extract_traceparent(req.headers()).is_none());
     }
@@ -496,16 +494,13 @@ mod tests {
     async fn test_middleware_emits_span_with_status() {
         // Use a noop service that returns 200
         async fn ok_svc(
-            _req: Request<Bytes>,
-        ) -> Result<Response<Bytes>, std::convert::Infallible> {
-            Ok(Response::builder()
-                .status(200)
-                .body(Bytes::new())
-                .unwrap())
+            _req: Request<String>,
+        ) -> Result<Response<String>, std::convert::Infallible> {
+            Ok(Response::builder().status(200).body(String::new()).unwrap())
         }
 
         let svc = otel(service_fn(ok_svc), OtelConfig::default());
-        let req = Request::builder().uri("/foo").body(Bytes::new()).unwrap();
+        let req = Request::builder().uri("/foo").body(String::new()).unwrap();
 
         let resp = tower::ServiceExt::oneshot(svc, req).await.unwrap();
         assert_eq!(resp.status().as_u16(), 200);
@@ -514,12 +509,9 @@ mod tests {
     #[tokio::test]
     async fn test_middleware_propagates_traceparent_into_span() {
         async fn ok_svc(
-            _req: Request<Bytes>,
-        ) -> Result<Response<Bytes>, std::convert::Infallible> {
-            Ok(Response::builder()
-                .status(200)
-                .body(Bytes::new())
-                .unwrap())
+            _req: Request<String>,
+        ) -> Result<Response<String>, std::convert::Infallible> {
+            Ok(Response::builder().status(200).body(String::new()).unwrap())
         }
 
         let svc = otel(service_fn(ok_svc), OtelConfig::default());
@@ -527,7 +519,7 @@ mod tests {
         let req = Request::builder()
             .uri("/bar")
             .header(TRACEPARENT, tp)
-            .body(Bytes::new())
+            .body(String::new())
             .unwrap();
 
         let resp = tower::ServiceExt::oneshot(svc, req).await.unwrap();
@@ -537,16 +529,13 @@ mod tests {
     #[tokio::test]
     async fn test_middleware_records_error_status() {
         async fn err_svc(
-            _req: Request<Bytes>,
-        ) -> Result<Response<Bytes>, std::convert::Infallible> {
-            Ok(Response::builder()
-                .status(500)
-                .body(Bytes::new())
-                .unwrap())
+            _req: Request<String>,
+        ) -> Result<Response<String>, std::convert::Infallible> {
+            Ok(Response::builder().status(500).body(String::new()).unwrap())
         }
 
         let svc = otel(service_fn(err_svc), OtelConfig::default());
-        let req = Request::builder().uri("/boom").body(Bytes::new()).unwrap();
+        let req = Request::builder().uri("/boom").body(String::new()).unwrap();
         let resp = tower::ServiceExt::oneshot(svc, req).await.unwrap();
         assert_eq!(resp.status().as_u16(), 500);
     }
@@ -555,13 +544,17 @@ mod tests {
     fn test_otel_error_display() {
         let e = OtelError::InvalidTraceparent("bad".to_string());
         assert!(e.to_string().contains("invalid W3C TraceContext"));
-        let e = OtelError::Http(http::Error::from(http::uri::InvalidUri));
+        let http_error = Request::builder()
+            .uri("http://[::1")
+            .body(())
+            .expect_err("invalid URI should produce an http::Error");
+        let e = OtelError::Http(http_error);
         assert!(e.to_string().contains("http error"));
     }
 
     #[test]
     fn test_otel_error_into_httpora_error() {
         let e: HttptoraError = OtelError::InvalidTraceparent("bad".to_string()).into();
-        assert!(matches!(e, HttptoraError::Middleware(_)));
+        assert!(matches!(e, HttptoraError::ParseError { detail } if detail.contains("otel")));
     }
 }

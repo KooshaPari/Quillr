@@ -25,12 +25,10 @@ pub mod middleware;
 
 pub use builder::{RequestExtractor, ResponseBuilder};
 pub use error::HttptoraError;
-pub use middleware::circuit_breaker::CircuitBreaker;
 pub use middleware::circuit_breaker::{CircuitBreaker, CircuitBreakerConfig, CircuitState};
-pub use middleware::cors::{CorsConfig, CorsMiddleware};
+pub use middleware::cors::{CorsConfig, CorsLayer};
+#[cfg(feature = "tower")]
 pub use middleware::otel::{OtelConfig, OtelLayer};
-pub use middleware::rate_limit::{RateLimit, RateLimitConfig};
-
-// Re-export key config types
-pub use middleware::circuit_breaker::CircuitBreakerConfig;
-pub use middleware::rate_limit::RateLimitConfig;
+pub use middleware::rate_limit::{RateLimitConfig, RateLimiter};
+#[cfg(feature = "tower")]
+pub use middleware::retry::{RetryConfig, RetryLayer};
