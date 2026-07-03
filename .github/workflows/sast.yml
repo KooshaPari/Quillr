@@ -1,8 +1,9 @@
 name: Security (SAST)
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
+    branches: [main]
   schedule: [{cron: "0 2 * * *"}]
 jobs:
   codeql:
