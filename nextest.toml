@@ -1,0 +1,10 @@
+# cargo-nextest configuration
+# See https://nexte.st/docs/configuration/
+
+[profile.ci]
+# Retry flaky tests up to 2 times
+retries = { count = 2 }
+# Per-test timeout of 120 seconds
+slow-timeout = { period = "120s" }
+# JUnit output for CI integration
+junit = { path = "test-results/junit.xml" }

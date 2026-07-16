@@ -1,0 +1,27 @@
+{
+  "name": "Quillr",
+  "image": "mcr.microsoft.com/devcontainers/universal:2-linux",
+  "features": {
+    "ghcr.io/devcontainers/features/rust:1": {
+      "version": "latest",
+      "profile": "complete"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "fill-labs.dependi",
+        "vadimcn.vscode-lldb"
+      ],
+      "settings": {
+        "rust-analyzer.check.command": "clippy",
+        "rust-analyzer.cargo.features": "all",
+        "editor.formatOnSave": true
+      }
+    }
+  },
+  "postCreateCommand": "cargo install cargo-nextest --locked && cargo install cargo-deny --locked && cargo install cargo-llvm-cov --locked",
+  "remoteUser": "root"
+}

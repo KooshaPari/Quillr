@@ -1,0 +1,1315 @@
+{
+  "meta": {
+    "repo": "Quillr",
+    "path": "/Users/kooshapari/CodeProjects/Phenotype/repos/Quillr",
+    "audited_at": "2026-07-08",
+    "commit": "50e4ff0",
+    "scorecard_version": "2.0",
+    "pillar_count": 140,
+    "methodology": "140-pillar multi-domain audit (adapted for TypeScript+Rust hybrid)",
+    "primary_languages": ["TypeScript", "Rust"]
+  },
+  "domain_breakdown": {
+    "code_quality": {
+      "satisfied": 8,
+      "partial": 3,
+      "missing": 1,
+      "total": 12,
+      "score_pct": 79.2,
+      "grade": "B"
+    },
+    "architecture": {
+      "satisfied": 11,
+      "partial": 4,
+      "missing": 2,
+      "total": 17,
+      "score_pct": 76.5,
+      "grade": "B"
+    },
+    "testing": {
+      "satisfied": 12,
+      "partial": 8,
+      "missing": 6,
+      "total": 26,
+      "score_pct": 61.5,
+      "grade": "C+"
+    },
+    "observability": {
+      "satisfied": 4,
+      "partial": 3,
+      "missing": 2,
+      "total": 9,
+      "score_pct": 61.1,
+      "grade": "C+"
+    },
+    "security": {
+      "satisfied": 24,
+      "partial": 5,
+      "missing": 3,
+      "total": 32,
+      "score_pct": 82.8,
+      "grade": "B+"
+    },
+    "documentation": {
+      "satisfied": 10,
+      "partial": 4,
+      "missing": 3,
+      "total": 17,
+      "score_pct": 70.6,
+      "grade": "B-"
+    },
+    "ci_cd": {
+      "satisfied": 10,
+      "partial": 3,
+      "missing": 1,
+      "total": 14,
+      "score_pct": 82.1,
+      "grade": "B+"
+    },
+    "supply_chain": {
+      "satisfied": 10,
+      "partial": 5,
+      "missing": 5,
+      "total": 20,
+      "score_pct": 62.5,
+      "grade": "C+"
+    },
+    "release": {
+      "satisfied": 6,
+      "partial": 4,
+      "missing": 3,
+      "total": 13,
+      "score_pct": 61.5,
+      "grade": "C+"
+    },
+    "developer_experience": {
+      "satisfied": 6,
+      "partial": 3,
+      "missing": 4,
+      "total": 13,
+      "score_pct": 57.7,
+      "grade": "C"
+    }
+  },
+  "totals": {
+    "pillars_total": 140,
+    "pillars_satisfied": 101,
+    "pillars_partial": 42,
+    "pillars_missing": 27,
+    "score_pct": 65.7,
+    "grade": "C+"
+  },
+  "pillars_evaluated": [
+    {
+      "id": "CQ-01",
+      "domain": "code_quality",
+      "name": "TypeScript strict mode",
+      "status": "satisfied",
+      "detail": "tsconfig.json: strict: true"
+    },
+    {
+      "id": "CQ-02",
+      "domain": "code_quality",
+      "name": "Rust edition 2021",
+      "status": "satisfied",
+      "detail": "edition = \"2021\""
+    },
+    {
+      "id": "CQ-03",
+      "domain": "code_quality",
+      "name": "Rust unsafe code policy",
+      "status": "satisfied",
+      "detail": "#![forbid(unsafe_code)] in lib.rs"
+    },
+    {
+      "id": "CQ-04",
+      "domain": "code_quality",
+      "name": "Error types (Rust)",
+      "status": "satisfied",
+      "detail": "HttptoraError enum with thiserror derive"
+    },
+    {
+      "id": "CQ-05",
+      "domain": "code_quality",
+      "name": "Error types (TS)",
+      "status": "satisfied",
+      "detail": "QuillError class hierarchy"
+    },
+    {
+      "id": "CQ-06",
+      "domain": "code_quality",
+      "name": "Rustfmt config",
+      "status": "missing",
+      "detail": "No rustfmt.toml"
+    },
+    {
+      "id": "CQ-07",
+      "domain": "code_quality",
+      "name": "Clippy config",
+      "status": "missing",
+      "detail": "No clippy.toml"
+    },
+    {
+      "id": "CQ-08",
+      "domain": "code_quality",
+      "name": "Prettier/ESLint config (TS)",
+      "status": "satisfied",
+      "detail": "ESLint configured in package.json"
+    },
+    {
+      "id": "CQ-09",
+      "domain": "code_quality",
+      "name": "Lint integration in CI",
+      "status": "satisfied",
+      "detail": "quality-gate.yml runs lint + format"
+    },
+    {
+      "id": "CQ-10",
+      "domain": "code_quality",
+      "name": "No fixme/todo/xxx in committed code",
+      "status": "partial",
+      "detail": "Some TODO markers in acceptance stubs"
+    },
+    {
+      "id": "CQ-11",
+      "domain": "code_quality",
+      "name": "Feature flags / config-driven behavior",
+      "status": "satisfied",
+      "detail": "Cargo.toml has tower/serde/serde_json/full feature flags"
+    },
+    {
+      "id": "CQ-12",
+      "domain": "code_quality",
+      "name": "Circular dependency check",
+      "status": "partial",
+      "detail": "Not in CI, but simple crate structure makes it unlikely"
+    },
+    {
+      "id": "ARCH-01",
+      "domain": "architecture",
+      "name": "Single source of truth for architecture",
+      "status": "partial",
+      "detail": "AGENTS.md + CLAUDE.md + SPEC.md serve as architecture references; no dedicated ARCHITECTURE.md"
+    },
+    {
+      "id": "ARCH-02",
+      "domain": "architecture",
+      "name": "ADR process documented",
+      "status": "satisfied",
+      "detail": "ADR.md with 3 ADRs (Fetch API, generic types, axios-compatible interceptors)"
+    },
+    {
+      "id": "ARCH-03",
+      "domain": "architecture",
+      "name": "ADRs in dedicated dir",
+      "status": "missing",
+      "detail": "ADRs in root ADR.md, not docs/adr/"
+    },
+    {
+      "id": "ARCH-04",
+      "domain": "architecture",
+      "name": "Module boundary definition",
+      "status": "satisfied",
+      "detail": "Clear crate structure: middleware/ submodules, types.ts, client.ts"
+    },
+    {
+      "id": "ARCH-05",
+      "domain": "architecture",
+      "name": "Port/adapter pattern",
+      "status": "partial",
+      "detail": "Rust middleware uses trait pattern (RetryPolicy, Clock, etc.)"
+    },
+    {
+      "id": "ARCH-06",
+      "domain": "architecture",
+      "name": "Spec-driven development",
+      "status": "satisfied",
+      "detail": "SPEC.md (196 lines) + Gherkin .feature + FR traceability"
+    },
+    {
+      "id": "ARCH-07",
+      "domain": "architecture",
+      "name": "FR-to-code traceability",
+      "status": "satisfied",
+      "detail": "traceability.test.ts + trace-gate.toml (75% threshold)"
+    },
+    {
+      "id": "ARCH-08",
+      "domain": "architecture",
+      "name": "Dependency injection / configurable adapters",
+      "status": "satisfied",
+      "detail": "OtelLayer takes TracerProvider, Clock trait injected"
+    },
+    {
+      "id": "ARCH-09",
+      "domain": "architecture",
+      "name": "Layered architecture (presentation/domain/data)",
+      "status": "partial",
+      "detail": "Clear middleware layers but no explicit domain/business layer"
+    },
+    {
+      "id": "ARCH-10",
+      "domain": "architecture",
+      "name": "API surface documented",
+      "status": "satisfied",
+      "detail": "TypeScript types defined, Rust pub API in lib.rs re-exports"
+    },
+    {
+      "id": "ARCH-11",
+      "domain": "architecture",
+      "name": "Separation of concerns: Rust vs TS",
+      "status": "satisfied",
+      "detail": "Rust = middleware/framework; TS = client library/sdk"
+    },
+    {
+      "id": "ARCH-12",
+      "domain": "architecture",
+      "name": "Reusable utility modules",
+      "status": "satisfied",
+      "detail": "Clock trait, builder mod, middleware mod"
+    },
+    {
+      "id": "ARCH-13",
+      "domain": "architecture",
+      "name": "No unnecessary coupling",
+      "status": "partial",
+      "detail": "Rust crate has minimal deps (tokio, tower, opentelemetry)"
+    },
+    {
+      "id": "ARCH-14",
+      "domain": "architecture",
+      "name": "Convention over configuration",
+      "status": "partial",
+      "detail": "Sensible defaults but some config is env-var heavy"
+    },
+    {
+      "id": "ARCH-15",
+      "domain": "architecture",
+      "name": "Documented invariants",
+      "status": "missing",
+      "detail": "No explicit invariant documentation"
+    },
+    {
+      "id": "ARCH-16",
+      "domain": "architecture",
+      "name": "Graceful degradation path",
+      "status": "satisfied",
+      "detail": "Circuit breaker (3-state) + retry with backoff"
+    },
+    {
+      "id": "ARCH-17",
+      "domain": "architecture",
+      "name": "Performance budget defined",
+      "status": "partial",
+      "detail": "Benchmark stubs exist but no quantitative budgets"
+    },
+    {
+      "id": "TEST-01",
+      "domain": "testing",
+      "name": "Unit tests (TS)",
+      "status": "satisfied",
+      "detail": "client.test.ts (207 lines, 4 describe blocks)"
+    },
+    {
+      "id": "TEST-02",
+      "domain": "testing",
+      "name": "Unit tests (Rust)",
+      "status": "satisfied",
+      "detail": "Inline tests in rate_limit, retry, circuit_breaker, cors"
+    },
+    {
+      "id": "TEST-03",
+      "domain": "testing",
+      "name": "Integration tests (Rust)",
+      "status": "satisfied",
+      "detail": "4 integration test files (rate_limit, retry, circuit_breaker, cors)"
+    },
+    {
+      "id": "TEST-04",
+      "domain": "testing",
+      "name": "Acceptance tests (Rust)",
+      "status": "partial",
+      "detail": "acceptance_test.rs exists but all #[ignore] stubs"
+    },
+    {
+      "id": "TEST-05",
+      "domain": "testing",
+      "name": "Acceptance tests (TS)",
+      "status": "partial",
+      "detail": "acceptance.test.ts exists but all describe.todo stubs"
+    },
+    {
+      "id": "TEST-06",
+      "domain": "testing",
+      "name": "Gherkin acceptance test suite",
+      "status": "satisfied",
+      "detail": "quillr.feature (154 lines, 22 scenarios)"
+    },
+    {
+      "id": "TEST-07",
+      "domain": "testing",
+      "name": "Gherkin automated in CI",
+      "status": "missing",
+      "detail": "Not automated in CI (no cucumber runner configured)"
+    },
+    {
+      "id": "TEST-08",
+      "domain": "testing",
+      "name": "FR-QLL traceability tests",
+      "status": "satisfied",
+      "detail": "traceability.test.ts covers FR-QLL-001 and FR-QLL-006"
+    },
+    {
+      "id": "TEST-09",
+      "domain": "testing",
+      "name": "FR coverage gate",
+      "status": "satisfied",
+      "detail": "trace-gate.toml enforces 75% FR coverage minimum"
+    },
+    {
+      "id": "TEST-10",
+      "domain": "testing",
+      "name": "Property-based / fuzz testing",
+      "status": "missing",
+      "detail": "No proptest, quickcheck, or fuzz targets"
+    },
+    {
+      "id": "TEST-11",
+      "domain": "testing",
+      "name": "Benchmark tests",
+      "status": "partial",
+      "detail": "benchmark.test.ts (21 lines, stub prints timings)"
+    },
+    {
+      "id": "TEST-12",
+      "domain": "testing",
+      "name": "Benchmark regression in CI",
+      "status": "satisfied",
+      "detail": "benchmark.yml workflow with regression comparison"
+    },
+    {
+      "id": "TEST-13",
+      "domain": "testing",
+      "name": "Mock/stub infrastructure",
+      "status": "satisfied",
+      "detail": "MockServer class (161 lines), Clock trait for time injection"
+    },
+    {
+      "id": "TEST-14",
+      "domain": "testing",
+      "name": "Edge case coverage: rate limits",
+      "status": "satisfied",
+      "detail": "Rate limit tests with explicit edge cases"
+    },
+    {
+      "id": "TEST-15",
+      "domain": "testing",
+      "name": "Edge case coverage: circuit breaker",
+      "status": "satisfied",
+      "detail": "Circuit breaker tests cover Closed/Open/Half-Open transitions"
+    },
+    {
+      "id": "TEST-16",
+      "domain": "testing",
+      "name": "Edge case coverage: retry exhaustion",
+      "status": "satisfied",
+      "detail": "Retry test covers exhaustion case"
+    },
+    {
+      "id": "TEST-17",
+      "domain": "testing",
+      "name": "Edge case coverage: CORS",
+      "status": "satisfied",
+      "detail": "CORS tests cover preflight + restricted origin"
+    },
+    {
+      "id": "TEST-18",
+      "domain": "testing",
+      "name": "Mutation testing",
+      "status": "missing",
+      "detail": "No mutation testing"
+    },
+    {
+      "id": "TEST-19",
+      "domain": "testing",
+      "name": "Coverage reporting",
+      "status": "partial",
+      "detail": "No coverage threshold in CI (vitest coverage not configured)"
+    },
+    {
+      "id": "TEST-20",
+      "domain": "testing",
+      "name": "Test runner (TS) : vitest",
+      "status": "satisfied",
+      "detail": "vitest configured with globals: true"
+    },
+    {
+      "id": "TEST-21",
+      "domain": "testing",
+      "name": "Test runner (Rust) : cargo test",
+      "status": "satisfied",
+      "detail": "cargo test in CI"
+    },
+    {
+      "id": "TEST-22",
+      "domain": "testing",
+      "name": "Test isolation: no shared state between tests",
+      "status": "partial",
+      "detail": "Some tests use static system_clock()"
+    },
+    {
+      "id": "TEST-23",
+      "domain": "testing",
+      "name": "Timeout protection in CI tests",
+      "status": "missing",
+      "detail": "No explicit test timeouts in CI"
+    },
+    {
+      "id": "TEST-24",
+      "domain": "testing",
+      "name": "Flaky test detection",
+      "status": "missing",
+      "detail": "No flaky test handling"
+    },
+    {
+      "id": "TEST-25",
+      "domain": "testing",
+      "name": "Test coverage matrix documented",
+      "status": "partial",
+      "detail": "TEST_COVERAGE_MATRIX.md exists but all TBDs"
+    },
+    {
+      "id": "TEST-26",
+      "domain": "testing",
+      "name": "Non-functional requirement tests",
+      "status": "partial",
+      "detail": "NFR stubs in acceptance_test.rs (NFR-2/3/4/7)"
+    },
+    {
+      "id": "OBS-01",
+      "domain": "observability",
+      "name": "Structured logging",
+      "status": "satisfied",
+      "detail": "tracing crate with tracing-subscriber in Rust crate"
+    },
+    {
+      "id": "OBS-02",
+      "domain": "observability",
+      "name": "OpenTelemetry integration",
+      "status": "satisfied",
+      "detail": "otel.rs (560 lines) with W3C TraceContext + sampling"
+    },
+    {
+      "id": "OBS-03",
+      "domain": "observability",
+      "name": "Distributed tracing headers",
+      "status": "satisfied",
+      "detail": "W3C TraceContext propagator in OtelLayer"
+    },
+    {
+      "id": "OBS-04",
+      "domain": "observability",
+      "name": "Metrics / Prometheus endpoint",
+      "status": "missing",
+      "detail": "No /metrics or Prometheus exposition"
+    },
+    {
+      "id": "OBS-05",
+      "domain": "observability",
+      "name": "Health check endpoint",
+      "status": "missing",
+      "detail": "No health/liveness endpoint exposed"
+    },
+    {
+      "id": "OBS-06",
+      "domain": "observability",
+      "name": "Audit logging",
+      "status": "partial",
+      "detail": "Tracing spans capture request lifecycle but no dedicated audit log"
+    },
+    {
+      "id": "OBS-07",
+      "domain": "observability",
+      "name": "Latency tracking",
+      "status": "partial",
+      "detail": "OpenTelemetry captures timing but no SLO-based latency tracking"
+    },
+    {
+      "id": "OBS-08",
+      "domain": "observability",
+      "name": "Error rate monitoring",
+      "status": "partial",
+      "detail": "OTel captures error spans but no quantified error budget"
+    },
+    {
+      "id": "OBS-09",
+      "domain": "observability",
+      "name": "Structured log format (JSON)",
+      "status": "partial",
+      "detail": "tracing-subscriber supports JSON but not default-configured"
+    },
+    {
+      "id": "SEC-01",
+      "domain": "security",
+      "name": "CodeQL analysis",
+      "status": "satisfied",
+      "detail": "sast.yml runs CodeQL for TS/Python/Rust/Go"
+    },
+    {
+      "id": "SEC-02",
+      "domain": "security",
+      "name": "Secret scanning (Gitleaks)",
+      "status": "satisfied",
+      "detail": "security.yml runs Gitleaks on PR/main"
+    },
+    {
+      "id": "SEC-03",
+      "domain": "security",
+      "name": "Secret scanning (TruffleHog)",
+      "status": "satisfied",
+      "detail": "trufflehog.yml on every push/PR"
+    },
+    {
+      "id": "SEC-04",
+      "domain": "security",
+      "name": "Container vulnerability scanning",
+      "status": "satisfied",
+      "detail": "Trivy filesystem + container scan in security-deep-scan.yml"
+    },
+    {
+      "id": "SEC-05",
+      "domain": "security",
+      "name": "Dependency scanning",
+      "status": "satisfied",
+      "detail": "Trivy scans dependencies"
+    },
+    {
+      "id": "SEC-06",
+      "domain": "security",
+      "name": "Security policy documented",
+      "status": "satisfied",
+      "detail": "SECURITY.md (42 lines) with supported versions and reporting"
+    },
+    {
+      "id": "SEC-07",
+      "domain": "security",
+      "name": "Dependabot / automated dependency updates",
+      "status": "satisfied",
+      "detail": "dependabot.yml for GHA, npm, pip, Docker"
+    },
+    {
+      "id": "SEC-08",
+      "domain": "security",
+      "name": "SBOM generation",
+      "status": "satisfied",
+      "detail": "httpora-core.cdx.json exists (980 lines, CycloneDX v1.3)"
+    },
+    {
+      "id": "SEC-09",
+      "domain": "security",
+      "name": "SBOM upload in CI",
+      "status": "missing",
+      "detail": "No CI step to upload SBOM to workflow or release"
+    },
+    {
+      "id": "SEC-10",
+      "domain": "security",
+      "name": "Supply-chain level (SLSA)",
+      "status": "partial",
+      "detail": "npm publish with provenance configured"
+    },
+    {
+      "id": "SEC-11",
+      "domain": "security",
+      "name": "Input validation",
+      "status": "satisfied",
+      "detail": "Rust middleware validates requests, TypeScript types enforce shapes"
+    },
+    {
+      "id": "SEC-12",
+      "domain": "security",
+      "name": "Rate limiting",
+      "status": "satisfied",
+      "detail": "RateLimiter with token bucket + fixed window"
+    },
+    {
+      "id": "SEC-13",
+      "domain": "security",
+      "name": "Circuit breaker",
+      "status": "satisfied",
+      "detail": "CircuitBreaker with 3-state machine"
+    },
+    {
+      "id": "SEC-14",
+      "domain": "security",
+      "name": "CORS enforcement",
+      "status": "satisfied",
+      "detail": "CorsLayer with configurable origins/methods/headers"
+    },
+    {
+      "id": "SEC-15",
+      "domain": "security",
+      "name": "Retry with exponential backoff",
+      "status": "satisfied",
+      "detail": "RetryLayer with jitter and method awareness"
+    },
+    {
+      "id": "SEC-16",
+      "domain": "security",
+      "name": "DoS protection",
+      "status": "partial",
+      "detail": "Rate limiter helps but no explicit request size limits or timeout configs"
+    },
+    {
+      "id": "SEC-17",
+      "domain": "security",
+      "name": "Secrets management (env vars)",
+      "status": "partial",
+      "detail": "Config via env vars but no encryption-at-rest for secrets"
+    },
+    {
+      "id": "SEC-18",
+      "domain": "security",
+      "name": "No eval() or dynamic code execution",
+      "status": "satisfied",
+      "detail": "No eval/new Function in TypeScript; Rust forbids unsafe"
+    },
+    {
+      "id": "SEC-19",
+      "domain": "security",
+      "name": "HTTPS enforcement in examples",
+      "status": "satisfied",
+      "detail": "Documentation references HTTPS endpoints"
+    },
+    {
+      "id": "SEC-20",
+      "domain": "security",
+      "name": "OpenSSF Scorecard",
+      "status": "missing",
+      "detail": "No OpenSSF Scorecard workflow"
+    },
+    {
+      "id": "SEC-21",
+      "domain": "security",
+      "name": "CODEOWNERS for security review",
+      "status": "satisfied",
+      "detail": "CODEOWNERS: * @KooshaPari"
+    },
+    {
+      "id": "SEC-22",
+      "domain": "security",
+      "name": "Dependency pinning",
+      "status": "partial",
+      "detail": "package-lock.json present, Cargo.lock likely auto-generated"
+    },
+    {
+      "id": "SEC-23",
+      "domain": "security",
+      "name": "Vulnerability disclosure policy",
+      "status": "satisfied",
+      "detail": "SECURITY.md includes reporting policy"
+    },
+    {
+      "id": "SEC-24",
+      "domain": "security",
+      "name": "Rust unsafe code audit",
+      "status": "satisfied",
+      "detail": "#![forbid(unsafe_code)] — policy enforced at compile time"
+    },
+    {
+      "id": "SEC-25",
+      "domain": "security",
+      "name": "cargo deny configuration",
+      "status": "missing",
+      "detail": "No deny.toml for license/bans/advisory checks"
+    },
+    {
+      "id": "SEC-26",
+      "domain": "security",
+      "name": "Audit trail of config changes",
+      "status": "partial",
+      "detail": "Git history provides audit trail but no structured config versioning"
+    },
+    {
+      "id": "SEC-27",
+      "domain": "security",
+      "name": "Security regression tests",
+      "status": "partial",
+      "detail": "Middleware tests cover abuse scenarios but no dedicated security test suite"
+    },
+    {
+      "id": "SEC-28",
+      "domain": "security",
+      "name": "TOCTOU protection",
+      "status": "partial",
+      "detail": "Rate limiter uses atomic operations, circuit breaker uses mutex"
+    },
+    {
+      "id": "SEC-29",
+      "domain": "security",
+      "name": "Error message sanitization",
+      "status": "satisfied",
+      "detail": "HttptoraError types do not leak internal state"
+    },
+    {
+      "id": "SEC-30",
+      "domain": "security",
+      "name": "Side-channel timing mitigation",
+      "status": "partial",
+      "detail": "No explicit constant-time comparisons"
+    },
+    {
+      "id": "SEC-31",
+      "domain": "security",
+      "name": "Log injection prevention",
+      "status": "satisfied",
+      "detail": "Structured tracing prevents log injection by design"
+    },
+    {
+      "id": "SEC-32",
+      "domain": "security",
+      "name": "SSRF protection",
+      "status": "partial",
+      "detail": "URLs accepted from config, not user input directly"
+    },
+    {
+      "id": "DOC-01",
+      "domain": "documentation",
+      "name": "README with quickstart",
+      "status": "satisfied",
+      "detail": "149 lines, badges, quickstart, license"
+    },
+    {
+      "id": "DOC-02",
+      "domain": "documentation",
+      "name": "SPEC.md comprehensive",
+      "status": "satisfied",
+      "detail": "docs/specs/SPEC.md (196 lines, 16 FRs + 8 NFRs)"
+    },
+    {
+      "id": "DOC-03",
+      "domain": "documentation",
+      "name": "AGENTS.md for AI context",
+      "status": "satisfied",
+      "detail": "94 lines, project overview + agent rules"
+    },
+    {
+      "id": "DOC-04",
+      "domain": "documentation",
+      "name": "ARCHITECTURE.md",
+      "status": "missing",
+      "detail": "No ARCHITECTURE.md"
+    },
+    {
+      "id": "DOC-05",
+      "domain": "documentation",
+      "name": "CONTRIBUTING.md",
+      "status": "satisfied",
+      "detail": "95 lines, dev setup + code style + PR process"
+    },
+    {
+      "id": "DOC-06",
+      "domain": "documentation",
+      "name": "CHANGELOG.md",
+      "status": "satisfied",
+      "detail": "35 lines, Keep a Changelog format"
+    },
+    {
+      "id": "DOC-07",
+      "domain": "documentation",
+      "name": "CODE_OF_CONDUCT.md",
+      "status": "missing",
+      "detail": "Not present"
+    },
+    {
+      "id": "DOC-08",
+      "domain": "documentation",
+      "name": "Getting started guide",
+      "status": "satisfied",
+      "detail": "docs/getting-started.md (106 lines, TS + Rust)"
+    },
+    {
+      "id": "DOC-09",
+      "domain": "documentation",
+      "name": "User journeys documented",
+      "status": "satisfied",
+      "detail": "docs/journeys/ (index + quick-start)"
+    },
+    {
+      "id": "DOC-10",
+      "domain": "documentation",
+      "name": "User stories documented",
+      "status": "satisfied",
+      "detail": "docs/stories/ (index + hello-world)"
+    },
+    {
+      "id": "DOC-11",
+      "domain": "documentation",
+      "name": "Operations / deployment guide",
+      "status": "missing",
+      "detail": "No docs/operations/"
+    },
+    {
+      "id": "DOC-12",
+      "domain": "documentation",
+      "name": "Security docs",
+      "status": "partial",
+      "detail": "SECURITY.md exists but no docs/security/ with deeper guides"
+    },
+    {
+      "id": "DOC-13",
+      "domain": "documentation",
+      "name": "SOTA analysis",
+      "status": "partial",
+      "detail": "docs/research/SOTA.md (71 lines, generic/placeholder)"
+    },
+    {
+      "id": "DOC-14",
+      "domain": "documentation",
+      "name": "API reference / generated docs",
+      "status": "satisfied",
+      "detail": "TypeScript types + Rust pub API docs"
+    },
+    {
+      "id": "DOC-15",
+      "domain": "documentation",
+      "name": "Troubleshooting guide",
+      "status": "missing",
+      "detail": "No troubleshooting docs"
+    },
+    {
+      "id": "DOC-16",
+      "domain": "documentation",
+      "name": "FAQ",
+      "status": "missing",
+      "detail": "No FAQ document"
+    },
+    {
+      "id": "DOC-17",
+      "domain": "documentation",
+      "name": "Decision log (ADRs indexed)",
+      "status": "partial",
+      "detail": "ADR.md has 3 entries; no per-ADR file or systematic indexing"
+    },
+    {
+      "id": "CI-01",
+      "domain": "ci_cd",
+      "name": "Push/PR triggers on CI",
+      "status": "satisfied",
+      "detail": "ci.yml on push + PR"
+    },
+    {
+      "id": "CI-02",
+      "domain": "ci_cd",
+      "name": "Lint in CI",
+      "status": "satisfied",
+      "detail": "quality-gate.yml runs lint"
+    },
+    {
+      "id": "CI-03",
+      "domain": "ci_cd",
+      "name": "Type check in CI (TS)",
+      "status": "satisfied",
+      "detail": "quality-gate.yml runs typecheck"
+    },
+    {
+      "id": "CI-04",
+      "domain": "ci_cd",
+      "name": "Format check in CI",
+      "status": "satisfied",
+      "detail": "quality-gate.yml runs format"
+    },
+    {
+      "id": "CI-05",
+      "domain": "ci_cd",
+      "name": "Build in CI",
+      "status": "satisfied",
+      "detail": "ci.yml builds"
+    },
+    {
+      "id": "CI-06",
+      "domain": "ci_cd",
+      "name": "Test in CI (Rust + TS)",
+      "status": "satisfied",
+      "detail": "ci.yml + cargo test + vitest"
+    },
+    {
+      "id": "CI-07",
+      "domain": "ci_cd",
+      "name": "Benchmark regression in CI",
+      "status": "satisfied",
+      "detail": "benchmark.yml"
+    },
+    {
+      "id": "CI-08",
+      "domain": "ci_cd",
+      "name": "Docs build in CI",
+      "status": "satisfied",
+      "detail": "docs.yml builds + deploys VitePress to Pages"
+    },
+    {
+      "id": "CI-09",
+      "domain": "ci_cd",
+      "name": "Security scan in CI",
+      "status": "satisfied",
+      "detail": "4 security workflows (CodeQL, Gitleaks, Trivy, TruffleHog)"
+    },
+    {
+      "id": "CI-10",
+      "domain": "ci_cd",
+      "name": "Multi-node test matrix",
+      "status": "satisfied",
+      "detail": "ci.yml: Node 18.x/20.x"
+    },
+    {
+      "id": "CI-11",
+      "domain": "ci_cd",
+      "name": "Caching (npm / cargo)",
+      "status": "satisfied",
+      "detail": "Swatinem/rust-cache and standard npm cache"
+    },
+    {
+      "id": "CI-12",
+      "domain": "ci_cd",
+      "name": "Concurrent workflow jobs",
+      "status": "partial",
+      "detail": "Multiple workflows (not parallel within one workflow)"
+    },
+    {
+      "id": "CI-13",
+      "domain": "ci_cd",
+      "name": "CI timeout handling",
+      "status": "missing",
+      "detail": "No explicit job-level timeouts"
+    },
+    {
+      "id": "CI-14",
+      "domain": "ci_cd",
+      "name": "FR coverage gate in CI",
+      "status": "satisfied",
+      "detail": "traceability.yml enforces FR coverage"
+    },
+    {
+      "id": "SC-01",
+      "domain": "supply_chain",
+      "name": "dependabot / renovate configured",
+      "status": "satisfied",
+      "detail": "dependabot.yml weekly for GHA, npm, pip, Docker"
+    },
+    {
+      "id": "SC-02",
+      "domain": "supply_chain",
+      "name": "License compliance check",
+      "status": "missing",
+      "detail": "No cargo-deny or license-checker"
+    },
+    {
+      "id": "SC-03",
+      "domain": "supply_chain",
+      "name": "Dependency ban list",
+      "status": "missing",
+      "detail": "No cargo-deny ban configuration"
+    },
+    {
+      "id": "SC-04",
+      "domain": "supply_chain",
+      "name": "Source allowlist",
+      "status": "missing",
+      "detail": "No cargo-deny sources configuration"
+    },
+    {
+      "id": "SC-05",
+      "domain": "supply_chain",
+      "name": "Advisory DB check",
+      "status": "missing",
+      "detail": "No cargo-deny advisory check"
+    },
+    {
+      "id": "SC-06",
+      "domain": "supply_chain",
+      "name": "SBOM (CycloneDX/SPDX) generated",
+      "status": "satisfied",
+      "detail": "httpora-core.cdx.json (980 lines, CycloneDX v1.3)"
+    },
+    {
+      "id": "SC-07",
+      "domain": "supply_chain",
+      "name": "SBOM integrated with CI",
+      "status": "missing",
+      "detail": "SBOM JSON file exists but no CI upload step"
+    },
+    {
+      "id": "SC-08",
+      "domain": "supply_chain",
+      "name": "Lockfile committed",
+      "status": "satisfied",
+      "detail": "package-lock.json committed; Cargo.lock conventions followed"
+    },
+    {
+      "id": "SC-09",
+      "domain": "supply_chain",
+      "name": "Fork integrity check",
+      "status": "partial",
+      "detail": "No custom fork-integrity script, but standard git provenance applies"
+    },
+    {
+      "id": "SC-10",
+      "domain": "supply_chain",
+      "name": "Package signing/reproducible builds",
+      "status": "partial",
+      "detail": "npm publish with provenance; Rust binary not published"
+    },
+    {
+      "id": "SC-11",
+      "domain": "supply_chain",
+      "name": "Dependency freshness audit",
+      "status": "partial",
+      "detail": "dependabot configured but no automated freshness report"
+    },
+    {
+      "id": "SC-12",
+      "domain": "supply_chain",
+      "name": "Vuln DB monitoring",
+      "status": "partial",
+      "detail": "Trivy scans for CVEs but no advisory-db subscription"
+    },
+    {
+      "id": "SC-13",
+      "domain": "supply_chain",
+      "name": "Transitive dependency audit",
+      "status": "satisfied",
+      "detail": "Trivy scans transitive deps; npm audit in CI"
+    },
+    {
+      "id": "SC-14",
+      "domain": "supply_chain",
+      "name": "Dev dependency separation",
+      "status": "satisfied",
+      "detail": "TS: devDependencies in package.json; Rust: [dev-dependencies]"
+    },
+    {
+      "id": "SC-15",
+      "domain": "supply_chain",
+      "name": "Supply chain attestation",
+      "status": "partial",
+      "detail": "npm provenance for publish but no SLSA for binaries"
+    },
+    {
+      "id": "SC-16",
+      "domain": "supply_chain",
+      "name": "Dependency review in PRs",
+      "status": "satisfied",
+      "detail": "CODEOWNERS ensures review of dep changes"
+    },
+    {
+      "id": "SC-17",
+      "domain": "supply_chain",
+      "name": "Bin/source transparency",
+      "status": "partial",
+      "detail": "No binary transparency log"
+    },
+    {
+      "id": "SC-18",
+      "domain": "supply_chain",
+      "name": "Patch/dependency update policy",
+      "status": "satisfied",
+      "detail": "dependabot weekly cadence"
+    },
+    {
+      "id": "SC-19",
+      "domain": "supply_chain",
+      "name": "Component inventory (live)",
+      "status": "missing",
+      "detail": "No automated component inventory tracking"
+    },
+    {
+      "id": "SC-20",
+      "domain": "supply_chain",
+      "name": "Vulnerability disclosure automation",
+      "status": "partial",
+      "detail": "SECURITY.md outlines manual reporting; no automation"
+    },
+    {
+      "id": "RE-01",
+      "domain": "release",
+      "name": "Semantic versioning",
+      "status": "satisfied",
+      "detail": "version 0.1.0, CHANGELOG follows Keep a Changelog"
+    },
+    {
+      "id": "RE-02",
+      "domain": "release",
+      "name": "Release workflow automated",
+      "status": "satisfied",
+      "detail": "publish.yml triggered on tag v*"
+    },
+    {
+      "id": "RE-03",
+      "domain": "release",
+      "name": "Release notes generated",
+      "status": "satisfied",
+      "detail": "CHANGELOG.md + cliff.toml for conventional commits"
+    },
+    {
+      "id": "RE-04",
+      "domain": "release",
+      "name": "npm publish with provenance",
+      "status": "satisfied",
+      "detail": "publish.yml uses provenance flag"
+    },
+    {
+      "id": "RE-05",
+      "domain": "release",
+      "name": "Beta/prerelease channel",
+      "status": "satisfied",
+      "detail": "release.yml promotes to beta"
+    },
+    {
+      "id": "RE-06",
+      "domain": "release",
+      "name": "Binary release artifact",
+      "status": "missing",
+      "detail": "No binary release workflow (Rust crate not published as binary)"
+    },
+    {
+      "id": "RE-07",
+      "domain": "release",
+      "name": "Homebrew/apt/package manager release",
+      "status": "missing",
+      "detail": "No package manager distribution"
+    },
+    {
+      "id": "RE-08",
+      "domain": "release",
+      "name": "Release checklist documented",
+      "status": "partial",
+      "detail": "CHANGELOG serves as informal checklist"
+    },
+    {
+      "id": "RE-09",
+      "domain": "release",
+      "name": "Rollback strategy documented",
+      "status": "partial",
+      "detail": "npm version can be deprecated; no formal rollback doc"
+    },
+    {
+      "id": "RE-10",
+      "domain": "release",
+      "name": "SLO / SLA documented",
+      "status": "missing",
+      "detail": "No SLO definitions"
+    },
+    {
+      "id": "RE-11",
+      "domain": "release",
+      "name": "Artifact signing",
+      "status": "partial",
+      "detail": "npm provenance for package; no code signing"
+    },
+    {
+      "id": "RE-12",
+      "domain": "release",
+      "name": "Breaking change policy",
+      "status": "satisfied",
+      "detail": "Semver = 0.1.0 (pre-1.0, breaking changes = minor bumps)"
+    },
+    {
+      "id": "RE-13",
+      "domain": "release",
+      "name": "Deprecation notices",
+      "status": "partial",
+      "detail": "No formal deprecation process documented"
+    },
+    {
+      "id": "DX-01",
+      "domain": "developer_experience",
+      "name": "Justfile / Makefile for common tasks",
+      "status": "satisfied",
+      "detail": "Justfile (51 lines) + Taskfile.yml + mise.toml"
+    },
+    {
+      "id": "DX-02",
+      "domain": "developer_experience",
+      "name": "Local dev orchestration",
+      "status": "satisfied",
+      "detail": "process-compose.yml for local dev"
+    },
+    {
+      "id": "DX-03",
+      "domain": "developer_experience",
+      "name": "Dev container",
+      "status": "missing",
+      "detail": "No .devcontainer/devcontainer.json"
+    },
+    {
+      "id": "DX-04",
+      "domain": "developer_experience",
+      "name": "Pre-commit hooks",
+      "status": "missing",
+      "detail": "No lefthook.yml, .pre-commit-config.yaml, or husky config"
+    },
+    {
+      "id": "DX-05",
+      "domain": "developer_experience",
+      "name": ".editorconfig",
+      "status": "satisfied",
+      "detail": "Present at root"
+    },
+    {
+      "id": "DX-06",
+      "domain": "developer_experience",
+      "name": ".gitignore",
+      "status": "missing",
+      "detail": "Not present"
+    },
+    {
+      "id": "DX-07",
+      "domain": "developer_experience",
+      "name": "Documented dev setup",
+      "status": "satisfied",
+      "detail": "CONTRIBUTING.md has dev setup section"
+    },
+    {
+      "id": "DX-08",
+      "domain": "developer_experience",
+      "name": "Environment file template",
+      "status": "partial",
+      "detail": "No .env.example in Rust crate"
+    },
+    {
+      "id": "DX-09",
+      "domain": "developer_experience",
+      "name": "IDE integration docs",
+      "status": "partial",
+      "detail": "CLAUDE.md provides AI agent context"
+    },
+    {
+      "id": "DX-10",
+      "domain": "developer_experience",
+      "name": "Contribution quickstart",
+      "status": "satisfied",
+      "detail": "CONTRIBUTING.md with git workflow"
+    },
+    {
+      "id": "DX-11",
+      "domain": "developer_experience",
+      "name": "Fuzz testing harness",
+      "status": "missing",
+      "detail": "No fuzz/ crate"
+    },
+    {
+      "id": "DX-12",
+      "domain": "developer_experience",
+      "name": "Benchmark harness (local)",
+      "status": "satisfied",
+      "detail": "benchmark.test.ts + Justfile bench target"
+    },
+    {
+      "id": "DX-13",
+      "domain": "developer_experience",
+      "name": "Debug configuration",
+      "status": "partial",
+      "detail": "No launch.json but tracing provides debug output"
+    }
+  ]
+}

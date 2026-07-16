@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use crate::error::HttptoraError;
 
 use super::clock::{system_clock, Clock};
+use tracing::instrument;
 
 /// Rate limiter strategy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -193,6 +194,7 @@ impl RateLimiter {
     ///
     /// Returns `Ok(())` if the request passes, or
     /// `Err(HttptoraError::RateLimited { retry_after })` if it should be rejected.
+    #[instrument(skip(self))]
     pub fn check(&self, tokens: f64) -> Result<(), HttptoraError> {
         let mut inner = self.inner.lock().unwrap();
         let result = match &mut *inner {

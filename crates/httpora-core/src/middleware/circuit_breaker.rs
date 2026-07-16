@@ -4,6 +4,7 @@ use std::time::{Duration, Instant};
 use crate::error::HttptoraError;
 
 use super::clock::{system_clock, Clock};
+use tracing::instrument;
 
 /// Circuit breaker state.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -119,6 +120,7 @@ impl CircuitBreaker {
     ///
     /// Returns `Ok(())` if the request may proceed, or
     /// `Err(HttptoraError::CircuitOpen)` if the circuit is open.
+    #[instrument(skip(self))]
     pub fn before_request(&self) -> Result<(), HttptoraError> {
         let mut inner = self.inner.lock().unwrap();
 
@@ -144,6 +146,7 @@ impl CircuitBreaker {
     }
 
     /// Record a successful request outcome.
+    #[instrument(skip(self))]
     pub fn on_success(&self) {
         let mut inner = self.inner.lock().unwrap();
 
@@ -161,6 +164,7 @@ impl CircuitBreaker {
     }
 
     /// Record a failed request outcome.
+    #[instrument(skip(self))]
     pub fn on_failure(&self) {
         let mut inner = self.inner.lock().unwrap();
 

@@ -4,6 +4,7 @@ use std::time::Duration;
 use std::future::Future;
 
 use crate::error::HttptoraError;
+use tracing::instrument;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum HttpMethod {
@@ -121,6 +122,7 @@ impl RetryLayer {
     ///
     /// Requires the `tower` feature (enabled by default).
     #[cfg(feature = "tower")]
+    #[instrument(skip(self, f))]
     pub async fn execute<F, Fut, T, E>(&self, f: F) -> Result<T, HttptoraError>
     where
         F: Fn() -> Fut,
@@ -154,6 +156,7 @@ impl RetryLayer {
     }
 
     #[cfg(feature = "tower")]
+    #[instrument(skip(self, f))]
     pub async fn execute_for_method<F, Fut, T, E>(
         &self,
         method: HttpMethod,
