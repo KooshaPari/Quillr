@@ -44,7 +44,7 @@ export class QuillClient {
   private readonly retryPolicy: RetryPolicy;
   private readonly chain: InterceptorChain;
 
-  constructor(config: QuillConfig, retryConfig?: RetryConfig) {
+  constructor(config: QuillConfig, retryConfig: RetryConfig | undefined = config.retry) {
     this.baseUrl = config.baseUrl.replace(/\/+$/, "");
     this.defaultHeaders = { ...config.headers };
     this.timeout = config.timeout ?? 30_000;

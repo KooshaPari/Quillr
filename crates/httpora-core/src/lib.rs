@@ -19,6 +19,8 @@
 //! let cb = CircuitBreaker::new(0.5, Duration::from_secs(30));
 //! ```
 
+#![forbid(unsafe_code)]
+
 pub mod builder;
 pub mod error;
 pub mod middleware;

@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  quality:
+  typescript-quality:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
@@ -26,13 +26,35 @@ jobs:
         run: npm run lint
 
       - name: Format check
-        run: npm run format -- --check
+        run: npm run format:check
 
       - name: Type check
         run: npm run check
 
-      - name: Run tests
-        run: npm test
+      - name: Test with enforced coverage
+        run: npm run test:coverage
+
+      - name: Verify traceability
+        run: npm run traceability
 
       - name: Build
         run: npm run build
+
+      - name: Package smoke
+        run: npm pack --dry-run
+
+  rust-quality:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: crates/httpora-core
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          components: clippy,rustfmt
+      - run: cargo fmt --check
+      - run: cargo clippy --all-targets --all-features -- -D warnings
+      - run: cargo test --all-features
+      - run: cargo test --no-default-features
+      - run: cargo package

@@ -11,18 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
-      - uses: actions/setup-python@v6
+      - uses: actions/setup-node@v6
         with:
-          python-version: "3.11"
-
-      - name: Install ptrace CLI
-        continue-on-error: true
-        run: |
-          mkdir -p ~/bin
-          curl -sL https://raw.githubusercontent.com/phenotype/AgilePlus/main/bin/ptrace -o ~/bin/ptrace
-          chmod +x ~/bin/ptrace
-          echo "$HOME/bin" >> $GITHUB_PATH
+          node-version: "20"
 
       - name: Check FR Coverage
-        continue-on-error: true
-        run: ptrace validate-ai --project .
+        run: npm run traceability

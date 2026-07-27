@@ -12,6 +12,8 @@ export interface QuillConfig {
   headers?: Record<string, string>;
   /** Request timeout in milliseconds (default: 30_000). */
   timeout?: number;
+  /** Retry policy overrides. */
+  retry?: RetryConfig;
 }
 
 /** Configuration for retry behaviour. */
