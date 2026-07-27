@@ -44,4 +44,4 @@ jobs:
       - uses: actions/checkout@v7
 
       - name: Trace Gate Check
-        run: echo "Trace Gate validation will be enforced via phenotype-pm-core"
+        run: npm run traceability

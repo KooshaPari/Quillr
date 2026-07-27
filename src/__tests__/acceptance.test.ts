@@ -1,130 +1,161 @@
-/**
- * Acceptance test skeletons for Quillr TypeScript client (@kooshapari/quillts)
- *
- * Each describe/it pair maps to one Functional Requirement (FR-*) or
- * Non-Functional Requirement (NFR-*) defined in docs/specs/SPEC.md.
- *
- * These tests are STUBS — they encode the acceptance criteria as the
- * asymptote and are deliberately skipped (pending). They will pass only
- * when the feature is correctly implemented.
- */
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { createClient } from "../client";
+import { MockServer } from "../mock";
+import { QuillError } from "../types";
 
-import { describe, it, expect } from 'vitest';
-
-// ---------------------------------------------------------------------------
-// FR-1: Client Creation
-// ---------------------------------------------------------------------------
-describe.todo('FR-1: Client Creation', () => {
-  it('should create a client with base URL, headers, and timeout', () => {
-    // createClient({ baseUrl: 'https://api.example.com', headers: { Authorization: 'Bearer x' }, timeout: 5000 })
-    // => returns QuillClient with get/post/put/delete methods
-    expect(true).toBe(true);
+const jsonResponse = (body: unknown, status = 200): Response =>
+  new Response(JSON.stringify(body), {
+    status,
+    statusText: status >= 400 ? "Failure" : "OK",
+    headers: { "content-type": "application/json", "x-request-id": "req-1" },
   });
 
-  it('should return an object with typed get, post, put, delete methods', () => {
-    expect(true).toBe(true);
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.restoreAllMocks();
+});
+
+describe("FR-1: Client Creation", () => {
+  it("uses base URL, default headers, timeout, and exposes typed methods", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ id: 1 }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = createClient({
+      baseUrl: "https://api.example.com/",
+      headers: { Authorization: "Bearer x" },
+      timeout: 5_000,
+    });
+
+    await client.get<{ id: number }>("/users/1");
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.example.com/users/1",
+      expect.objectContaining({
+        method: "GET",
+        headers: { Authorization: "Bearer x" },
+        signal: expect.any(AbortSignal),
+      }),
+    );
+    for (const method of ["get", "post", "put", "delete"]) {
+      expect(client[method as "get"]).toBeTypeOf("function");
+    }
   });
 });
 
-// ---------------------------------------------------------------------------
-// FR-2: Typed HTTP Methods
-// ---------------------------------------------------------------------------
-describe.todo('FR-2: Typed HTTP Methods', () => {
-  it('should support GET with generic type inference', () => {
-    // api.get<User>('/users/123') => Promise<User>
-    expect(true).toBe(true);
-  });
+describe("FR-2: Typed HTTP Methods", () => {
+  it.each([
+    ["GET", "get", undefined],
+    ["POST", "post", { name: "Alice" }],
+    ["PUT", "put", { name: "Bob" }],
+    ["DELETE", "delete", undefined],
+  ] as const)("dispatches %s through the typed %s method", async (verb, method, body) => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = createClient({ baseUrl: "https://api.example.com" });
 
-  it('should support POST with generic type inference', () => {
-    // api.post<User>('/users', body) => Promise<User>
-    expect(true).toBe(true);
-  });
+    if (method === "get" || method === "delete") {
+      await client[method]<{ ok: boolean }>("/resource");
+    } else {
+      await client[method]<{ ok: boolean }>("/resource", body);
+    }
 
-  it('should support PUT with generic type inference', () => {
-    // api.put<User>('/users/123', body) => Promise<User>
-    expect(true).toBe(true);
-  });
-
-  it('should support DELETE with generic type inference', () => {
-    // api.delete('/users/123') => Promise<void>
-    expect(true).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// FR-3: Request Interceptors
-// ---------------------------------------------------------------------------
-describe.todo('FR-3: Request Interceptors', () => {
-  it('should invoke request interceptors before every request', () => {
-    expect(true).toBe(true);
-  });
-
-  it('should allow interceptors to modify headers, body, and URL', () => {
-    expect(true).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.example.com/resource",
+      expect.objectContaining({ method: verb }),
+    );
   });
 });
 
-// ---------------------------------------------------------------------------
-// FR-4: Response Interceptors
-// ---------------------------------------------------------------------------
-describe.todo('FR-4: Response Interceptors', () => {
-  it('should invoke response interceptors after every successful response', () => {
-    expect(true).toBe(true);
-  });
+describe("FR-3: Request Interceptors", () => {
+  it("modifies headers, body, and URL before dispatch", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = createClient({ baseUrl: "https://api.example.com" });
+    client.use({
+      onRequest: (ctx) => ({
+        ...ctx,
+        url: "/intercepted",
+        headers: { ...ctx.headers, Authorization: "Bearer intercepted" },
+        body: { transformed: true },
+      }),
+    });
 
-  it('should allow interceptors to transform response data', () => {
-    expect(true).toBe(true);
-  });
-});
+    await client.post("/original", { transformed: false });
 
-// ---------------------------------------------------------------------------
-// FR-5: Error Interceptors
-// ---------------------------------------------------------------------------
-describe.todo('FR-5: Error Interceptors', () => {
-  it('should invoke error interceptors on HTTP 5xx errors', () => {
-    expect(true).toBe(true);
-  });
-
-  it('should invoke error interceptors on network errors', () => {
-    expect(true).toBe(true);
-  });
-});
-
-// ---------------------------------------------------------------------------
-// FR-6: Retry with Backoff
-// ---------------------------------------------------------------------------
-describe.todo('FR-6: Retry with Backoff', () => {
-  it('should retry on network errors up to configured max retries', () => {
-    expect(true).toBe(true);
-  });
-
-  it('should apply exponential backoff between retries', () => {
-    expect(true).toBe(true);
-  });
-
-  it('should return the successful response if a retry succeeds', () => {
-    expect(true).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      "https://api.example.com/intercepted",
+      expect.objectContaining({
+        headers: expect.objectContaining({ Authorization: "Bearer intercepted" }),
+        body: JSON.stringify({ transformed: true }),
+      }),
+    );
   });
 });
 
-// ---------------------------------------------------------------------------
-// FR-7: Mock Utilities
-// ---------------------------------------------------------------------------
-describe.todo('FR-7: Mock Utilities', () => {
-  it('should allow mocking HTTP responses without a live server', () => {
-    expect(true).toBe(true);
-  });
+describe("FR-4: Response Interceptors", () => {
+  it("transforms a successful response before returning it", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ value: 1 })));
+    const client = createClient({ baseUrl: "https://api.example.com" });
+    client.use({
+      onResponse: async (response) => ({
+        ...response,
+        data: { value: (response.data as { value: number }).value + 1 },
+      }),
+    });
 
-  it('should support mocking error responses', () => {
-    expect(true).toBe(true);
+    const response = await client.get<{ value: number }>("/value");
+
+    expect(response.data).toEqual({ value: 2 });
   });
 });
 
-// ---------------------------------------------------------------------------
-// NFR-1: Type Safety (TypeScript)
-// ---------------------------------------------------------------------------
-describe.todo('NFR-1: Type Safety', () => {
-  it('should compile with strict: true and no any escape hatches', () => {
-    expect(true).toBe(true);
+describe("FR-5: Error Interceptors", () => {
+  it("invokes an error interceptor for an HTTP 5xx failure", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(jsonResponse({ error: true }, 500)));
+    const client = createClient({
+      baseUrl: "https://api.example.com",
+      retry: { maxRetries: 0 },
+    });
+    const onError = vi.fn((error: QuillError) => error);
+    client.use({ onError });
+
+    await expect(client.get("/failure")).rejects.toMatchObject({ status: 500 });
+    expect(onError).toHaveBeenCalledOnce();
+  });
+});
+
+describe("FR-6: Retry with Backoff", () => {
+  it("honours retry config and returns a later successful response", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse({ error: true }, 503))
+      .mockResolvedValueOnce(jsonResponse({ ok: true }));
+    vi.stubGlobal("fetch", fetchMock);
+    const client = createClient({
+      baseUrl: "https://api.example.com",
+      retry: { maxRetries: 1, baseDelay: 0, maxDelay: 0 },
+    });
+
+    const response = await client.get<{ ok: boolean }>("/eventual-success");
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(response.data.ok).toBe(true);
+  });
+});
+
+describe("FR-7: Mock Utilities", () => {
+  it("simulates success and error responses without network access", async () => {
+    const mock = new MockServer();
+    mock.on("GET", "/ok", { ok: true });
+    mock.on("GET", "/failure", { error: "expected" }, 503);
+
+    await expect(mock.resolve("GET", "/ok")).resolves.toMatchObject({
+      status: 200,
+      data: { ok: true },
+    });
+    await expect(mock.resolve("GET", "/failure")).resolves.toMatchObject({
+      status: 503,
+      data: { error: "expected" },
+    });
+    expect(mock.callCount).toBe(2);
   });
 });
