@@ -15,6 +15,9 @@ pub enum HttptoraError {
 
     /// Request/response parsing failed.
     ParseError { detail: String },
+
+    /// A shared-state mutex was poisoned (a thread panicked while holding the lock).
+    Poisoned { detail: String },
 }
 
 impl fmt::Display for HttptoraError {
@@ -31,6 +34,9 @@ impl fmt::Display for HttptoraError {
             }
             HttptoraError::ParseError { detail } => {
                 write!(f, "parse error: {detail}")
+            }
+            HttptoraError::Poisoned { detail } => {
+                write!(f, "mutex poisoned: {detail}")
             }
         }
     }

@@ -52,7 +52,7 @@ impl Default for CircuitBreakerConfig {
 /// use std::time::Duration;
 ///
 /// let cb = CircuitBreaker::new(0.5, Duration::from_secs(30));
-/// assert_eq!(cb.state(), httpora_core::middleware::circuit_breaker::CircuitState::Closed);
+/// assert_eq!(cb.state().unwrap(), httpora_core::middleware::circuit_breaker::CircuitState::Closed);
 /// ```
 pub struct CircuitBreaker {
     config: CircuitBreakerConfig,
@@ -68,6 +68,16 @@ struct BreakerInner {
 }
 
 impl CircuitBreaker {
+    /// Acquire the inner mutex, converting a poisoned lock into
+    /// [`HttptoraError::Poisoned`].
+    fn lock_inner(
+        &self,
+    ) -> Result<std::sync::MutexGuard<'_, BreakerInner>, HttptoraError> {
+        self.inner.lock().map_err(|e| HttptoraError::Poisoned {
+            detail: format!("circuit breaker mutex: {e}"),
+        })
+    }
+
     /// Create a circuit breaker with the default configuration overridden by
     /// the given failure threshold and reset timeout.
     pub fn new(failure_threshold: f64, reset_timeout: Duration) -> Self {
@@ -111,8 +121,8 @@ impl CircuitBreaker {
     }
 
     /// Return the current circuit state.
-    pub fn state(&self) -> CircuitState {
-        self.inner.lock().unwrap().state
+    pub fn state(&self) -> Result<CircuitState, HttptoraError> {
+        Ok(self.lock_inner()?.state)
     }
 
     /// Call before each downstream request.
@@ -120,7 +130,7 @@ impl CircuitBreaker {
     /// Returns `Ok(())` if the request may proceed, or
     /// `Err(HttptoraError::CircuitOpen)` if the circuit is open.
     pub fn before_request(&self) -> Result<(), HttptoraError> {
-        let mut inner = self.inner.lock().unwrap();
+        let mut inner = self.lock_inner()?;
 
         if inner.state == CircuitState::Open {
             let now = (self.clock)();
@@ -144,31 +154,32 @@ impl CircuitBreaker {
     }
 
     /// Record a successful request outcome.
-    pub fn on_success(&self) {
-        let mut inner = self.inner.lock().unwrap();
+    pub fn on_success(&self) -> Result<(), HttptoraError> {
+        let mut inner = self.lock_inner()?;
 
         if inner.state == CircuitState::HalfOpen {
             // Probe succeeded — close the circuit.
             inner.state = CircuitState::Closed;
             inner.window.clear();
-            return;
+            return Ok(());
         }
 
         inner.window.push(true);
         if inner.window.len() > self.config.window_size {
             inner.window.remove(0);
         }
+        Ok(())
     }
 
     /// Record a failed request outcome.
-    pub fn on_failure(&self) {
-        let mut inner = self.inner.lock().unwrap();
+    pub fn on_failure(&self) -> Result<(), HttptoraError> {
+        let mut inner = self.lock_inner()?;
 
         if inner.state == CircuitState::HalfOpen {
             // Probe failed — reopen.
             inner.opened_at = Some((self.clock)());
             inner.state = CircuitState::Open;
-            return;
+            return Ok(());
         }
 
         inner.window.push(false);
@@ -176,6 +187,7 @@ impl CircuitBreaker {
             inner.window.remove(0);
         }
         self.evaluate(&mut inner);
+        Ok(())
     }
 
     fn evaluate(&self, inner: &mut BreakerInner) {
@@ -198,7 +210,7 @@ mod tests {
     #[test]
     fn circuit_starts_closed() {
         let cb = CircuitBreaker::new(0.5, Duration::from_secs(30));
-        assert_eq!(cb.state(), CircuitState::Closed);
+        assert_eq!(cb.state().unwrap(), CircuitState::Closed);
         assert!(cb.before_request().is_ok());
     }
 
@@ -213,15 +225,15 @@ mod tests {
         });
 
         // 3 successes
-        cb.on_success();
-        cb.on_success();
-        cb.on_success();
-        assert_eq!(cb.state(), CircuitState::Closed);
+        cb.on_success().unwrap();
+        cb.on_success().unwrap();
+        cb.on_success().unwrap();
+        assert_eq!(cb.state().unwrap(), CircuitState::Closed);
 
         // 2 failures — 2/5 = 0.4 >= 0.3 → trips
-        cb.on_failure();
-        cb.on_failure();
-        assert_eq!(cb.state(), CircuitState::Open);
+        cb.on_failure().unwrap();
+        cb.on_failure().unwrap();
+        assert_eq!(cb.state().unwrap(), CircuitState::Open);
         assert!(cb.before_request().is_err());
     }
 
@@ -233,16 +245,16 @@ mod tests {
             min_requests: 1,
             ..Default::default()
         });
-        cb.on_failure(); // trips immediately (threshold 0.0)
-        assert_eq!(cb.state(), CircuitState::Open);
+        cb.on_failure().unwrap(); // trips immediately (threshold 0.0)
+        assert_eq!(cb.state().unwrap(), CircuitState::Open);
 
         // Since reset_timeout is 0ms, before_request transitions to half-open
         assert!(cb.before_request().is_ok());
-        assert_eq!(cb.state(), CircuitState::HalfOpen);
+        assert_eq!(cb.state().unwrap(), CircuitState::HalfOpen);
 
         // Probe succeeds → circuit closes
-        cb.on_success();
-        assert_eq!(cb.state(), CircuitState::Closed);
+        cb.on_success().unwrap();
+        assert_eq!(cb.state().unwrap(), CircuitState::Closed);
     }
 
     #[test]
@@ -253,15 +265,15 @@ mod tests {
             min_requests: 1,
             ..Default::default()
         });
-        cb.on_failure(); // trips
-        assert_eq!(cb.state(), CircuitState::Open);
+        cb.on_failure().unwrap(); // trips
+        assert_eq!(cb.state().unwrap(), CircuitState::Open);
 
         // Transitions to half-open
         assert!(cb.before_request().is_ok());
-        assert_eq!(cb.state(), CircuitState::HalfOpen);
+        assert_eq!(cb.state().unwrap(), CircuitState::HalfOpen);
 
         // Probe fails → circuit reopens
-        cb.on_failure();
-        assert_eq!(cb.state(), CircuitState::Open);
+        cb.on_failure().unwrap();
+        assert_eq!(cb.state().unwrap(), CircuitState::Open);
     }
 }

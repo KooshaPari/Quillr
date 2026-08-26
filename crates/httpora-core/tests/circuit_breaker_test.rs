@@ -9,7 +9,7 @@ use std::time::Instant;
 #[test]
 fn circuit_starts_closed() {
     let cb = CircuitBreaker::new(0.5, Duration::from_secs(30));
-    assert_eq!(cb.state(), CircuitState::Closed);
+    assert_eq!(cb.state().unwrap(), CircuitState::Closed);
     assert!(cb.before_request().is_ok());
 }
 
@@ -22,15 +22,15 @@ fn circuit_opens_on_failure_threshold() {
         ..Default::default()
     });
 
-    cb.on_success();
-    cb.on_success();
-    cb.on_success();
-    assert_eq!(cb.state(), CircuitState::Closed);
+    cb.on_success().unwrap();
+    cb.on_success().unwrap();
+    cb.on_success().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Closed);
 
     // 2 failures out of 5 = 40% >= 30% → trips
-    cb.on_failure();
-    cb.on_failure();
-    assert_eq!(cb.state(), CircuitState::Open);
+    cb.on_failure().unwrap();
+    cb.on_failure().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Open);
     assert!(cb.before_request().is_err());
 }
 
@@ -42,7 +42,7 @@ fn open_circuit_rejects_requests() {
         min_requests: 1,
         ..Default::default()
     });
-    cb.on_failure(); // trips immediately
+    cb.on_failure().unwrap(); // trips immediately
     match cb.before_request() {
         Err(HttptoraError::CircuitOpen) => {} // expected
         other => panic!("expected CircuitOpen, got {other:?}"),
@@ -57,15 +57,15 @@ fn half_open_probe_success_closes_circuit() {
         min_requests: 1,
         ..Default::default()
     });
-    cb.on_failure(); // trips
+    cb.on_failure().unwrap(); // trips
 
     // reset_timeout is 0ms, so before_request transitions to half-open
     assert!(cb.before_request().is_ok());
-    assert_eq!(cb.state(), CircuitState::HalfOpen);
+    assert_eq!(cb.state().unwrap(), CircuitState::HalfOpen);
 
     // Probe succeeds → circuit closes
-    cb.on_success();
-    assert_eq!(cb.state(), CircuitState::Closed);
+    cb.on_success().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Closed);
 }
 
 #[test]
@@ -76,14 +76,14 @@ fn half_open_probe_failure_reopens() {
         min_requests: 1,
         ..Default::default()
     });
-    cb.on_failure(); // trips
-    assert_eq!(cb.state(), CircuitState::Open);
+    cb.on_failure().unwrap(); // trips
+    assert_eq!(cb.state().unwrap(), CircuitState::Open);
 
     assert!(cb.before_request().is_ok());
-    assert_eq!(cb.state(), CircuitState::HalfOpen);
+    assert_eq!(cb.state().unwrap(), CircuitState::HalfOpen);
 
-    cb.on_failure();
-    assert_eq!(cb.state(), CircuitState::Open);
+    cb.on_failure().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Open);
 }
 
 #[test]
@@ -96,9 +96,9 @@ fn does_not_trip_below_min_requests() {
     });
 
     // 1 failure with only 2 requests total — below min_requests (10)
-    cb.on_success();
-    cb.on_failure();
-    assert_eq!(cb.state(), CircuitState::Closed);
+    cb.on_success().unwrap();
+    cb.on_failure().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Closed);
 }
 
 #[test]
@@ -115,11 +115,11 @@ fn circuit_breaker_accepts_injected_clock() {
         Arc::new(move || *clock_now.lock().unwrap()),
     );
 
-    cb.on_failure();
-    assert_eq!(cb.state(), CircuitState::Open);
+    cb.on_failure().unwrap();
+    assert_eq!(cb.state().unwrap(), CircuitState::Open);
     assert!(cb.before_request().is_err());
 
     *now.lock().unwrap() += Duration::from_secs(10);
     assert!(cb.before_request().is_ok());
-    assert_eq!(cb.state(), CircuitState::HalfOpen);
+    assert_eq!(cb.state().unwrap(), CircuitState::HalfOpen);
 }

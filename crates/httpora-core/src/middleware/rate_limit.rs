@@ -194,7 +194,9 @@ impl RateLimiter {
     /// Returns `Ok(())` if the request passes, or
     /// `Err(HttptoraError::RateLimited { retry_after })` if it should be rejected.
     pub fn check(&self, tokens: f64) -> Result<(), HttptoraError> {
-        let mut inner = self.inner.lock().unwrap();
+        let mut inner = self.inner.lock().map_err(|e| HttptoraError::Poisoned {
+            detail: format!("rate limiter mutex: {e}"),
+        })?;
         let result = match &mut *inner {
             Inner::TokenBucket(tb) => tb.consume(tokens),
             Inner::FixedWindow(fw) => fw.consume(),

@@ -43,12 +43,12 @@ fn fr10_circuit_breaker_transitions_through_all_states() {
         min_requests: 1,
         ..Default::default()
     });
-    breaker.on_failure();
-    assert_eq!(breaker.state(), CircuitState::Open);
+    breaker.on_failure().unwrap();
+    assert_eq!(breaker.state().unwrap(), CircuitState::Open);
     assert!(breaker.before_request().is_ok());
-    assert_eq!(breaker.state(), CircuitState::HalfOpen);
-    breaker.on_success();
-    assert_eq!(breaker.state(), CircuitState::Closed);
+    assert_eq!(breaker.state().unwrap(), CircuitState::HalfOpen);
+    breaker.on_success().unwrap();
+    assert_eq!(breaker.state().unwrap(), CircuitState::Closed);
 }
 
 #[tokio::test]
