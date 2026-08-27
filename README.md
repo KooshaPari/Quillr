@@ -11,6 +11,36 @@ Progress: `[████████░░] 80%` — TypeScript client scaffold 
 
 **What Quillr does:** Quillr is the Phenotype org's shared HTTP toolkit spanning **Rust and TypeScript** — composable rate limiting, retries, circuit breakers, interceptors, and mocking as first-class citizens. The TypeScript package (`@kooshapari/quillts`) is a type-safe HTTP client with interceptors and built-in test utilities; the Rust crate (`httpora-core`) provides Tower-compatible middleware for production services.
 
+## Quick Try
+
+Spin up a live environment to test the TypeScript client instantly:
+
+[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/edit/github-kooshapari-quillr?embed=1&file=src/index.ts)
+
+## Rust Quick Start
+
+Add `httpora-core` to your Rust project:
+
+```bash
+cargo add httpora-core
+```
+
+Minimal usage example:
+
+```rust
+use httpora_core::{RateLimiter, RetryLayer, CircuitBreaker};
+use std::time::Duration;
+
+#[tokio::main]
+async fn main() {
+    let limiter = RateLimiter::token_bucket(100, 10.0);
+    let retry = RetryLayer::new(3, Duration::from_millis(100));
+    let cb = CircuitBreaker::new(0.5, Duration::from_secs(30));
+    
+    println!("Quillr Rust middleware ready!");
+}
+```
+
 ## Usage / Quickstart
 
 ```bash
