@@ -27,12 +27,13 @@ serde = ["dep:serde"]
 serde_json = ["dep:serde_json"]
 
 [dev-dependencies]
-tokio = { version = "1", features = ["rt", "macros", "time"] }
+tokio = { version = "1", features = ["rt", "rt-multi-thread", "macros", "time"] }
 tower = { version = "0.5", features = ["util"] }
 pin-project = "1"
 futures-core = "0.3"
 bytes = "1"
 http = "1"
+criterion = { version = "0.5", features = ["html_reports"] }
 
 [[test]]
 name = "rate_limit"
@@ -49,3 +50,8 @@ path = "tests/circuit_breaker_test.rs"
 [[test]]
 name = "cors"
 path = "tests/cors_test.rs"
+
+[[bench]]
+name = "httpora_bench"
+path = "benches/httpora_bench.rs"
+harness = false
