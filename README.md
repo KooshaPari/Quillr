@@ -5,6 +5,8 @@
 
 Multi-language HTTP toolkit for the Phenotype ecosystem. Quillr provides composable HTTP primitives — rate limiting, retries, circuit breakers, interceptors, and mocking — as first-class citizens in both **TypeScript** and **Rust**.
 
+[![AI slop inside](https://sladge.net/badge.svg)](https://sladge.net) [![GitHub Downloads (all assets, all releases)](https://img.shields.io/github/downloads/KooshaPari/Quillr/total)](https://github.com/KooshaPari/Quillr/releases)
+
 ## State
 
 Progress: `[████████░░] 80%` — TypeScript client scaffold + Rust `httpora-core` middleware landed; CI green, release-candidate README polish in flight.
